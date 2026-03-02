@@ -1,12 +1,11 @@
 import CategoryRow from "./CategoryRow";
 import { CategoryRow as CategoryRowType } from "@/lib/types/listings";
-import { categoryRows as fallbackRows } from "@/lib/data/listings";
 
 type Props = {
-  rows?: CategoryRowType[]; // later: pass CMS rows
+  rows: CategoryRowType[];
 };
 
-export default function SliderArea({ rows = fallbackRows }: Props) {
+export default function SliderArea({ rows }: Props) {
   return (
     <section className="w-full select-none">
       {rows.map((row) => (
