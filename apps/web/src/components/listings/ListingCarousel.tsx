@@ -39,7 +39,7 @@ export default function ListingCarousel({ items }: Props) {
         ›
       </button>
 
-      <div ref={emblaRef} className="overflow-hidden">
+      <div ref={emblaRef} className="">
         <div className="flex items-stretch gap-4">
           {items.map((item) => (
             <div

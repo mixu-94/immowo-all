@@ -1,5 +1,6 @@
 // src/lib/data/listings.ts
 import type { CategoryRow, Listing, EstateDetails } from "@/lib/types/listings";
+import { payloadFind } from "@/lib/payloud";
 
 const ESTATE_BASE_PATH = "/objekte";
 
@@ -968,29 +969,255 @@ export const categoryRows: CategoryRow[] = buildCategoryRows(estatesWithRouting)
 
 /**
  * ----------------------------------------------------------------------------
- * PUBLIC API (Mock)
+ * PAYLOAD FETCH LAYER
  * ----------------------------------------------------------------------------
+ * Versucht Daten aus Payload zu laden. Bei Fehler → statischer Fallback.
+ */
+const PAYLOAD_BASE_URL = process.env.PAYLOAD_BASE_URL ?? "";
+
+function resolveMediaUrl(url?: string): string | undefined {
+    if (!url) return undefined;
+    return url.startsWith("http") ? url : `${PAYLOAD_BASE_URL}${url}`;
+}
+
+/** Extrahiert Plaintext aus Payload Lexical-JSON */
+function lexicalToPlainText(json: unknown): string {
+    if (!json || typeof json !== "object") return "";
+    const node = json as Record<string, unknown>;
+    if (typeof node.text === "string") return node.text;
+    if (Array.isArray(node.children)) {
+        return (node.children as unknown[])
+            .map(lexicalToPlainText)
+            .join(" ")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+    if (node.root) return lexicalToPlainText(node.root);
+    return "";
+}
+
+type PayloadVermarktungsStatus = "verfuegbar" | "reserviert" | "verkauft" | "in_bau";
+
+function mapVermarktungsStatus(s?: PayloadVermarktungsStatus): ListingStatus {
+    if (s === "verfuegbar") return "verfügbar";
+    if (s === "in_bau") return "in_bau";
+    return (s ?? "verfügbar") as ListingStatus;
+}
+
+type PayloadMedia = { url?: string; alt?: string; filename?: string } | null;
+
+type PayloadImmobilie = {
+    id: number | string;
+    title: string;
+    slug: string;
+    vermarktungsStatus?: PayloadVermarktungsStatus;
+    location?: string;
+    price?: number;
+    livingArea?: number;
+    plotArea?: number;
+    rooms?: number;
+    bedrooms?: number;
+    bathrooms?: number;
+    yearBuilt?: number;
+    availability?: string;
+    badge?: string;
+    heroMedia?: PayloadMedia;
+    gallery?: { item?: PayloadMedia }[];
+    documents?: { exposePdf?: PayloadMedia };
+    description?: unknown;
+    highlights?: { text: string }[];
+    features?: { text: string }[];
+    energy?: {
+        certificateType?: "bedarf" | "verbrauch";
+        value?: number;
+        class?: string;
+        carrier?: string;
+        year?: number;
+    };
+    buyerCommission?: {
+        kind?: "percent" | "fixed";
+        value?: number;
+        vatIncluded?: boolean;
+        vatRate?: number;
+        due?: string;
+        basis?: string;
+        note?: string;
+    };
+    seo?: { metaTitle?: string; metaDescription?: string; ogImage?: PayloadMedia };
+};
+
+function mapPayloadToEstateDetails(p: PayloadImmobilie): EstateDetails {
+    const slug = p.slug;
+    const status = mapVermarktungsStatus(p.vermarktungsStatus);
+    const heroUrl = resolveMediaUrl(p.heroMedia?.url);
+
+    return {
+        id: String(p.id),
+        title: p.title,
+        slug,
+        href: `/objekte/${slug}`,
+        subtitle: undefined,
+        badge: p.badge,
+        imageSrc: heroUrl,
+        location: p.location,
+        classification: {
+            status,
+            badge: p.badge,
+        },
+        locationInfo: p.location ? { label: p.location } : undefined,
+        pricing: {
+            price: p.price ?? null,
+            currency: "EUR",
+            availability: p.availability,
+            buyerCommission: p.buyerCommission?.kind
+                ? {
+                      kind: p.buyerCommission.kind,
+                      value: p.buyerCommission.value ?? 0,
+                      vatIncluded: p.buyerCommission.vatIncluded,
+                      vatRate: p.buyerCommission.vatRate,
+                      due: p.buyerCommission.due,
+                      basis: p.buyerCommission.basis,
+                      note: p.buyerCommission.note,
+                  }
+                : undefined,
+        },
+        facts: {
+            livingArea: p.livingArea,
+            plotArea: p.plotArea,
+            rooms: p.rooms,
+            bedrooms: p.bedrooms,
+            bathrooms: p.bathrooms,
+            yearBuilt: p.yearBuilt,
+        },
+        energy: p.energy
+            ? {
+                  certificateType: p.energy.certificateType,
+                  value: p.energy.value,
+                  class: p.energy.class as any,
+                  carrier: p.energy.carrier,
+                  year: p.energy.year,
+              }
+            : undefined,
+        documents: p.documents?.exposePdf
+            ? { exposePdfUrl: resolveMediaUrl(p.documents.exposePdf.url) }
+            : undefined,
+        media: {
+            gallery: p.gallery
+                ?.filter((g) => g.item?.url)
+                .map((g) => ({
+                    type: "image" as const,
+                    src: resolveMediaUrl(g.item!.url)!,
+                    alt: g.item!.alt,
+                })),
+        },
+        description: lexicalToPlainText(p.description),
+        highlights: p.highlights?.map((h) => h.text),
+        features: p.features?.map((f) => f.text),
+        seo: p.seo
+            ? {
+                  title: p.seo.metaTitle,
+                  description: p.seo.metaDescription,
+                  ogImage: resolveMediaUrl(p.seo.ogImage?.url),
+              }
+            : undefined,
+    };
+}
+
+async function fetchListingsFromPayload(): Promise<EstateDetails[] | null> {
+    try {
+        const res = await payloadFind<PayloadImmobilie>(
+            "immobilien",
+            {
+                where: { _status: { equals: "published" } },
+                limit: 100,
+                depth: 2,
+            },
+            { next: { revalidate: 300, tags: ["immobilien"] } },
+        );
+        return res.docs.map(mapPayloadToEstateDetails);
+    } catch (err) {
+        console.warn("[listings] Payload nicht erreichbar, nutze Fallback.", err);
+        return null;
+    }
+}
+
+async function fetchListingBySlugFromPayload(slug: string): Promise<EstateDetails | null> {
+    try {
+        const res = await payloadFind<PayloadImmobilie>(
+            "immobilien",
+            {
+                where: {
+                    and: [
+                        { slug: { equals: slug } },
+                        { _status: { equals: "published" } },
+                    ],
+                },
+                limit: 1,
+                depth: 2,
+            },
+            { next: { revalidate: 300, tags: [`immobilien-${slug}`] } },
+        );
+        return res.docs[0] ? mapPayloadToEstateDetails(res.docs[0]) : null;
+    } catch (err) {
+        console.warn(`[listings] Payload nicht erreichbar für slug "${slug}", nutze Fallback.`, err);
+        return null;
+    }
+}
+
+/**
+ * ----------------------------------------------------------------------------
+ * PUBLIC API
+ * ----------------------------------------------------------------------------
+ * Versucht Payload → fällt auf statische Daten zurück, wenn Payload offline.
  */
 export async function getCategoryRows(): Promise<CategoryRow[]> {
-    return categoryRows;
+    const listings = await fetchListingsFromPayload();
+    if (!listings) return categoryRows;
+
+    // Baue eine einzige Kategorie-Zeile mit allen verfügbaren Listings
+    if (listings.length === 0) return categoryRows;
+    return [
+        {
+            id: "alle",
+            title: "AKTUELLE ANGEBOTE",
+            href: "/immobilien",
+            items: listings,
+        },
+    ];
 }
 
-export async function getListings(): Promise<ListingFull[]> {
-    return estatesWithRouting;
+export async function getListings(): Promise<EstateDetails[]> {
+    const listings = await fetchListingsFromPayload();
+    return listings ?? (estatesWithRouting as unknown as EstateDetails[]);
 }
 
-export async function getEstateBySlug(slug: string): Promise<ListingFull | null> {
-    const all = await getListings();
-    return all.find((x) => x.slug === slug) ?? null;
+export async function getEstateBySlug(slug: string): Promise<EstateDetails | null> {
+    const fromPayload = await fetchListingBySlugFromPayload(slug);
+    if (fromPayload !== null) return fromPayload;
+    // Fallback: statische Daten
+    return (estatesWithRouting.find((x) => x.slug === slug) as unknown as EstateDetails) ?? null;
 }
 
 export async function getAllListingSlugs(): Promise<string[]> {
-    const all = await getListings();
-    return all.map((l: any) => l.slug ?? l.id).filter(Boolean);
+    try {
+        const res = await payloadFind<{ slug: string }>(
+            "immobilien",
+            {
+                where: { _status: { equals: "published" } },
+                limit: 200,
+                depth: 0,
+            },
+            { next: { revalidate: 300, tags: ["immobilien"] } },
+        );
+        if (res.docs.length > 0) return res.docs.map((d) => d.slug).filter(Boolean);
+    } catch {
+        // Fallback
+    }
+    return estatesWithRouting.map((l: any) => l.slug ?? l.id).filter(Boolean);
 }
 
 export async function getListingBySlug(slug: string): Promise<EstateDetails | null> {
-    return (await getEstateBySlug(slug)) as unknown as EstateDetails | null;
+    return getEstateBySlug(slug);
 }
 
 

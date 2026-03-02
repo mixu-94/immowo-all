@@ -1,0 +1,153 @@
+/* src/app/(payload)/custom.scss */
+
+/**
+ * Immowo Admin Theme (Payload)
+ * - Uses CSS variables so you can match your Immowo website colors easily.
+ * - Tailwind is used in custom components (Dashboard etc.)
+ * - This file targets the admin shell visually (background/surfaces/typography).
+ */
+
+:root {
+  /* === Brand Tokens (adjust to match Immowo exactly) === */
+  --immowo-bg: #050b1a; /* deep navy */
+  --immowo-surface: rgba(255, 255, 255, 0.04);
+  --immowo-surface-2: rgba(255, 255, 255, 0.06);
+  --immowo-border: rgba(255, 255, 255, 0.1);
+  --immowo-border-strong: rgba(214, 181, 109, 0.22);
+
+  --immowo-text: rgba(255, 255, 255, 0.92);
+  --immowo-muted: rgba(255, 255, 255, 0.68);
+
+  --immowo-accent: #d6b56d; /* champagne gold */
+  --immowo-accent-hover: #e6cd8f;
+
+  --immowo-radius-lg: 16px;
+  --immowo-radius-xl: 22px;
+
+  --immowo-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+}
+
+/* Background & base typography */
+html,
+body {
+  background: var(--immowo-bg);
+  color: var(--immowo-text);
+}
+
+/* Subtle backdrop / glow (keeps it premium, not “too gold”) */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% -10%, rgba(214, 181, 109, 0.1), transparent 55%),
+    radial-gradient(circle at 110% 10%, rgba(99, 102, 241, 0.1), transparent 55%),
+    radial-gradient(circle at -10% 90%, rgba(34, 211, 238, 0.06), transparent 60%);
+  filter: blur(24px);
+  opacity: 0.9;
+  z-index: 0;
+}
+
+/* Make sure admin content sits above glow */
+#payload-admin-root,
+.payload-admin,
+[data-payload-root] {
+  position: relative;
+  z-index: 1;
+}
+
+/* Generic “card” feel in admin where possible */
+.payload__card,
+.payload__drawer,
+.payload__modal,
+.payload__list-controls,
+.payload__list {
+  border-radius: var(--immowo-radius-lg);
+}
+
+/* Inputs / Panels subtle border */
+input,
+textarea,
+select {
+  border-color: var(--immowo-border) !important;
+}
+
+/* Buttons baseline (Payload has its own system; we keep it subtle) */
+button {
+  border-radius: 999px;
+}
+
+/* Links */
+a {
+  color: var(--immowo-text);
+}
+a:hover {
+  color: rgba(255, 255, 255, 1);
+}
+
+/* Helper: gold hairline utility (for custom components if needed) */
+.immowo-hairline {
+  background: linear-gradient(
+    90deg,
+    rgba(214, 181, 109, 0.08),
+    rgba(255, 255, 255, 0.1),
+    rgba(214, 181, 109, 0.08)
+  );
+}
+
+/* If Payload renders a main container, make it feel like Immowo */
+.payload__wrapper,
+.payload__template {
+  background: transparent !important;
+}
+
+/* ===== Robust Sidebar styling (works across many Payload versions) ===== */
+
+/* 1) Seitenleiste: oft ein <nav> links im Layout */
+.payload-admin nav {
+  background: var(--brand-surface) !important;
+  border-right: 1px solid var(--brand-border) !important;
+  backdrop-filter: blur(10px);
+}
+
+/* 2) Links in der Sidebar */
+.payload-admin nav a {
+  border-radius: 999px !important;
+  margin: 4px 10px !important;
+  padding: 10px 12px !important;
+  color: rgba(255, 255, 255, 0.78) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-weight: 600 !important;
+}
+
+/* Hover */
+.payload-admin nav a:hover {
+  background: var(--brand-surface-2) !important;
+  color: rgba(255, 255, 255, 0.96) !important;
+}
+
+/* Active state: aria-current ist sehr häufig vorhanden */
+.payload-admin nav a[aria-current='page'] {
+  background: rgba(214, 181, 109, 0.1) !important;
+  border: 1px solid rgba(214, 181, 109, 0.2) !important;
+  color: rgba(255, 255, 255, 0.98) !important;
+  position: relative !important;
+  padding-left: 18px !important;
+}
+
+/* Indicator line */
+.payload-admin nav a[aria-current='page']::before {
+  content: '' !important;
+  position: absolute !important;
+  left: 8px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 3px !important;
+  height: 18px !important;
+  border-radius: 999px !important;
+  background: var(--brand-accent) !important;
+  box-shadow: 0 0 0 4px rgba(214, 181, 109, 0.08) !important;
+}

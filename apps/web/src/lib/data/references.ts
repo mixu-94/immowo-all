@@ -1,5 +1,6 @@
 // lib/data/references.ts
 import type { Reference, ReferenceCategory, ReferenceRow } from "@/lib/types/references";
+import { payloadFind } from "@/lib/payloud";
 
 /**
  * ============================================================================
@@ -446,26 +447,201 @@ export function getReferenceCategories(items: Reference[] = references): Referen
     return Array.from(set).sort((a, b) => a.localeCompare(b));
 }
 
+/**
+ * ----------------------------------------------------------------------------
+ * PAYLOAD FETCH LAYER
+ * ----------------------------------------------------------------------------
+ */
+const PAYLOAD_BASE_URL = process.env.PAYLOAD_BASE_URL ?? "";
+
+function resolveMediaUrl(url?: string): string | undefined {
+    if (!url) return undefined;
+    return url.startsWith("http") ? url : `${PAYLOAD_BASE_URL}${url}`;
+}
+
+type PayloadMedia = { url?: string; alt?: string } | null;
+
+type PayloadReferenz = {
+    id: number | string;
+    title: string;
+    slug: string;
+    subtitle?: string;
+    category?: string;
+    year?: string;
+    isFeatured?: boolean;
+    sortOrder?: number;
+    location?: { region?: string; label?: string; geo?: { lat?: number; lng?: number } };
+    description?: string;
+    highlights?: { text: string }[];
+    facts?: {
+        units?: string;
+        livingArea?: string;
+        plotArea?: string;
+        rooms?: string;
+        buildTime?: string;
+        status?: string;
+    };
+    kpis?: { label: string; value: string }[];
+    coverImage?: PayloadMedia;
+    gallery?: { item?: PayloadMedia; alt?: string }[];
+    documents?: {
+        caseStudyPdf?: PayloadMedia;
+        exposeSample?: PayloadMedia;
+        brochure?: PayloadMedia;
+    };
+    services?: string[];
+    timeline?: { title: string; text: string }[];
+    sections?: { heading: string; content: string }[];
+    caseStudy?: { challenge?: string; approach?: string; result?: string };
+    testimonial?: { quote?: string; author?: string; role?: string };
+    seo?: { metaTitle?: string; metaDescription?: string; ogImage?: PayloadMedia };
+};
+
+function mapPayloadToReference(p: PayloadReferenz): Reference {
+    return {
+        id: String(p.id),
+        slug: p.slug,
+        title: p.title,
+        subtitle: p.subtitle,
+        category: (p.category ?? "Neubau") as ReferenceCategory,
+        year: p.year ?? "",
+        isFeatured: p.isFeatured ?? false,
+        sortOrder: p.sortOrder,
+        location: {
+            region: p.location?.region,
+            label: p.location?.label,
+            geo:
+                p.location?.geo?.lat !== undefined && p.location?.geo?.lng !== undefined
+                    ? { lat: p.location.geo.lat!, lng: p.location.geo.lng! }
+                    : undefined,
+        },
+        description: p.description ?? "",
+        highlights: p.highlights?.map((h) => h.text) ?? [],
+        facts: p.facts
+            ? {
+                  units: p.facts.units,
+                  livingArea: p.facts.livingArea,
+                  plotArea: p.facts.plotArea,
+                  rooms: p.facts.rooms,
+                  buildTime: p.facts.buildTime,
+                  status: p.facts.status as any,
+              }
+            : undefined,
+        kpis: p.kpis,
+        coverImage: p.coverImage?.url
+            ? { src: resolveMediaUrl(p.coverImage.url)!, alt: p.coverImage.alt ?? p.title }
+            : undefined,
+        media: {
+            gallery: p.gallery
+                ?.filter((g) => g.item?.url)
+                .map((g) => ({
+                    type: "image" as const,
+                    src: resolveMediaUrl(g.item!.url)!,
+                    alt: g.alt ?? g.item!.alt,
+                })),
+        },
+        documents: {
+            caseStudyPdfUrl: resolveMediaUrl(p.documents?.caseStudyPdf?.url),
+            exposeSampleUrl: resolveMediaUrl(p.documents?.exposeSample?.url),
+            brochureUrl: resolveMediaUrl(p.documents?.brochure?.url),
+        },
+        services: p.services as any,
+        timeline: p.timeline,
+        sections: p.sections,
+        caseStudy: p.caseStudy
+            ? { challenge: p.caseStudy.challenge, approach: p.caseStudy.approach, result: p.caseStudy.result }
+            : undefined,
+        testimonial:
+            p.testimonial?.quote
+                ? { quote: p.testimonial.quote, author: p.testimonial.author, role: p.testimonial.role }
+                : undefined,
+        seo: p.seo
+            ? {
+                  title: p.seo.metaTitle,
+                  description: p.seo.metaDescription,
+                  ogImage: resolveMediaUrl(p.seo.ogImage?.url),
+              }
+            : undefined,
+    };
+}
+
+async function fetchReferencesFromPayload(): Promise<Reference[] | null> {
+    try {
+        const res = await payloadFind<PayloadReferenz>(
+            "referenzen",
+            {
+                where: { _status: { equals: "published" } },
+                limit: 100,
+                depth: 2,
+            },
+            { next: { revalidate: 300, tags: ["referenzen"] } },
+        );
+        return res.docs.map(mapPayloadToReference);
+    } catch (err) {
+        console.warn("[references] Payload nicht erreichbar, nutze Fallback.", err);
+        return null;
+    }
+}
+
+async function fetchReferenceBySlugFromPayload(slug: string): Promise<Reference | null> {
+    try {
+        const res = await payloadFind<PayloadReferenz>(
+            "referenzen",
+            {
+                where: {
+                    and: [
+                        { slug: { equals: slug } },
+                        { _status: { equals: "published" } },
+                    ],
+                },
+                limit: 1,
+                depth: 2,
+            },
+            { next: { revalidate: 300, tags: [`referenzen-${slug}`] } },
+        );
+        return res.docs[0] ? mapPayloadToReference(res.docs[0]) : null;
+    } catch (err) {
+        console.warn(`[references] Payload nicht erreichbar für slug "${slug}", nutze Fallback.`, err);
+        return null;
+    }
+}
+
 /** For /referenzen grid */
 export async function getReferences(): Promise<Reference[]> {
+    const fromPayload = await fetchReferencesFromPayload();
+    if (fromPayload !== null) return sortRefs(fromPayload);
     return sortRefs(references);
 }
 
 /** For /referenzen/[slug] */
 export async function getReferenceBySlug(slug: string): Promise<Reference | null> {
-    const all = await getReferences();
+    const fromPayload = await fetchReferenceBySlugFromPayload(slug);
+    if (fromPayload !== null) return fromPayload;
+    const all = sortRefs(references);
     return all.find((r) => r.slug === slug) ?? null;
 }
 
 /** For generateStaticParams */
 export async function getAllReferenceSlugs(): Promise<string[]> {
-    const all = await getReferences();
-    return all.map((r) => r.slug);
+    try {
+        const res = await payloadFind<{ slug: string }>(
+            "referenzen",
+            {
+                where: { _status: { equals: "published" } },
+                limit: 200,
+                depth: 0,
+            },
+            { next: { revalidate: 300, tags: ["referenzen"] } },
+        );
+        if (res.docs.length > 0) return res.docs.map((d) => d.slug).filter(Boolean);
+    } catch {
+        // Fallback
+    }
+    return references.map((r) => r.slug);
 }
 
 /**
- * Optional: Rows for carousels/teasers.
- * Useful if you want a homepage section like "Neubau" / "Sanierung".
+ * Rows for carousels/teasers (grouped by category).
  */
 export async function getReferenceRows(): Promise<ReferenceRow[]> {
     const all = await getReferences();
