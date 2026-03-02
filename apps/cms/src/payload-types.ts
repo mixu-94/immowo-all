@@ -404,8 +404,8 @@ export interface Referenzen {
     approach?: string | null;
     result?: string | null;
   };
-  testimonial: {
-    quote: string;
+  testimonial?: {
+    quote?: string | null;
     author?: string | null;
     role?: string | null;
   };

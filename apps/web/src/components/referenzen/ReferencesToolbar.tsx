@@ -20,20 +20,16 @@ export function ReferencesToolbar({
   return (
     <div className="mb-6 flex flex-col gap-4 md:mb-8">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="relative">
-          <input
-            value={query}
-            onChange={(e) => onQueryChange(e.target.value)}
-            placeholder="Suche nach Projekt, Kategorie, Region, Highlights…"
-            className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none backdrop-blur transition focus:border-white/20 md:w-[420px]"
-          />
-          <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-white/35">
-            ⌘K
-          </div>
-        </div>
+        <input
+          value={query}
+          onChange={(e) => onQueryChange(e.target.value)}
+          placeholder="Projekt, Kategorie, Region, Highlights …"
+          className="w-full rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-4 py-2.5 text-sm text-[color:var(--color-text)] placeholder:text-[color:var(--color-text-muted)] outline-none backdrop-blur transition focus:border-[rgba(214,181,109,0.40)] focus:ring-1 focus:ring-[rgba(214,181,109,0.20)] md:w-[380px]"
+        />
 
-        <div className="text-sm text-white/60">
-          {resultCount} {resultCount === 1 ? "Referenz" : "Referenzen"}
+        <div className="text-sm text-[color:var(--color-text-muted)]">
+          {resultCount}{" "}
+          {resultCount === 1 ? "Referenz" : "Referenzen"}
         </div>
       </div>
 
@@ -41,10 +37,10 @@ export function ReferencesToolbar({
         <button
           onClick={() => onTagChange(null)}
           className={[
-            "rounded-full px-3 py-1.5 text-xs transition",
+            "rounded-full px-3.5 py-1.5 text-xs font-medium transition",
             activeTag === null
-              ? "bg-white text-black"
-              : "border border-white/15 bg-white/5 text-white/80 hover:bg-white/10",
+              ? "border border-[rgba(214,181,109,0.45)] bg-[rgba(214,181,109,0.12)] text-[color:var(--color-accent)]"
+              : "border border-[color:var(--color-border)] bg-[color:var(--color-surface)] text-[color:var(--color-text-muted)] hover:border-[rgba(214,181,109,0.25)] hover:text-[color:var(--color-text)]",
           ].join(" ")}
         >
           Alle
@@ -57,10 +53,10 @@ export function ReferencesToolbar({
               key={tag}
               onClick={() => onTagChange(active ? null : tag)}
               className={[
-                "rounded-full px-3 py-1.5 text-xs transition",
+                "rounded-full px-3.5 py-1.5 text-xs font-medium transition",
                 active
-                  ? "bg-white text-black"
-                  : "border border-white/15 bg-white/5 text-white/80 hover:bg-white/10",
+                  ? "border border-[rgba(214,181,109,0.45)] bg-[rgba(214,181,109,0.12)] text-[color:var(--color-accent)]"
+                  : "border border-[color:var(--color-border)] bg-[color:var(--color-surface)] text-[color:var(--color-text-muted)] hover:border-[rgba(214,181,109,0.25)] hover:text-[color:var(--color-text)]",
               ].join(" ")}
             >
               {tag}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { SlidersHorizontal, X } from "lucide-react";
 import type { ListingLike } from "./filters";
 import { defaultFilters, matchesFilters } from "./filters";
 import { ListingsGrid } from "./ListingsGrid";
@@ -8,104 +9,134 @@ import { ListingsGrid } from "./ListingsGrid";
 export function ListingsToolbar({ listings }: { listings: ListingLike[] }) {
   const [filters, setFilters] = useState(defaultFilters);
 
-  const filtered = useMemo(() => {
-    return listings.filter((l) => matchesFilters(l, filters));
-  }, [listings, filters]);
+  const filtered = useMemo(
+    () => listings.filter((l) => matchesFilters(l, filters)),
+    [listings, filters],
+  );
+
+  const isFiltered =
+    filters.q !== "" ||
+    filters.location !== "" ||
+    filters.variant !== "any" ||
+    filters.status !== "any" ||
+    filters.minPrice != null ||
+    filters.maxPrice != null ||
+    filters.minArea != null ||
+    filters.minRooms != null;
 
   return (
-    <section className="mt-10">
-      <div className="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur md:p-6">
-        <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
-          <div>
-            <div className="text-xs font-semibold tracking-widest text-white/60">
-              FILTER
+    <section className="mt-10" id="filter">
+      <div className="rounded-2xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] backdrop-blur">
+        {/* Filter header */}
+        <div className="flex items-center justify-between border-b border-[color:var(--color-border)] px-5 py-4 md:px-6">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-[rgba(214,181,109,0.28)] bg-[rgba(214,181,109,0.08)] text-[color:var(--color-accent)]">
+              <SlidersHorizontal className="h-3.5 w-3.5" />
             </div>
-            <h2 className="mt-2 text-lg font-semibold text-white">
-              Suchen & eingrenzen
-            </h2>
-            <p className="mt-2 text-sm text-white/70">
-              {filtered.length} Treffer
-            </p>
+            <span className="text-sm font-semibold text-[color:var(--color-text)]">
+              Suchen &amp; filtern
+            </span>
+            {isFiltered && (
+              <span className="rounded-full border border-[rgba(214,181,109,0.35)] bg-[rgba(214,181,109,0.10)] px-2 py-0.5 text-[10px] font-semibold text-[color:var(--color-accent)]">
+                aktiv
+              </span>
+            )}
           </div>
 
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-[color:var(--color-text-muted)]">
+              <span className="font-semibold text-[color:var(--color-text)]">
+                {filtered.length}
+              </span>{" "}
+              {filtered.length === 1 ? "Treffer" : "Treffer"}
+            </span>
+
+            {isFiltered && (
+              <button
+                onClick={() => setFilters(defaultFilters)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-[color:var(--color-border)] bg-[color:var(--color-surface-2)] px-3 py-1.5 text-xs font-medium text-[color:var(--color-text-muted)] transition hover:border-[rgba(214,181,109,0.30)] hover:text-[color:var(--color-text)]"
+              >
+                <X className="h-3 w-3" />
+                Zurücksetzen
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Filter body */}
+        <div className="p-5 md:p-6">
+          {/* Text search row */}
           <div className="grid gap-3 md:grid-cols-2">
-            <input
+            <FilterInput
               value={filters.q}
-              onChange={(e) => setFilters((p) => ({ ...p, q: e.target.value }))}
-              placeholder="Suche (Ort, Objekt, Features)…"
-              className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/20"
+              onChange={(v) => setFilters((p) => ({ ...p, q: v }))}
+              placeholder="Objekt, Features, Schlagwort …"
+              label="Freitext"
             />
-            <input
+            <FilterInput
               value={filters.location}
-              onChange={(e) =>
-                setFilters((p) => ({ ...p, location: e.target.value }))
-              }
-              placeholder="Region / Ort"
-              className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/20"
+              onChange={(v) => setFilters((p) => ({ ...p, location: v }))}
+              placeholder="z. B. Augsburg, München, Schwaben"
+              label="Region / Ort"
             />
           </div>
-        </div>
 
-        <div className="mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-6">
-          <Select
-            label="Typ"
-            value={filters.variant}
-            onChange={(v) => setFilters((p) => ({ ...p, variant: v as any }))}
-            options={[
-              ["any", "Alle"],
-              ["ready", "Fertig"],
-              ["build", "Bauprojekt"],
-              ["investment", "Investment"],
-            ]}
-          />
-          <Select
-            label="Status"
-            value={filters.status}
-            onChange={(v) => setFilters((p) => ({ ...p, status: v as any }))}
-            options={[
-              ["any", "Alle"],
-              ["verfügbar", "Verfügbar"],
-              ["reserviert", "Reserviert"],
-              ["in_bau", "In Bau"],
-              ["verkauft", "Verkauft"],
-            ]}
-          />
-          <NumberField
-            label="Preis min"
-            value={filters.minPrice ?? ""}
-            onChange={(v) => setFilters((p) => ({ ...p, minPrice: v }))}
-          />
-          <NumberField
-            label="Preis max"
-            value={filters.maxPrice ?? ""}
-            onChange={(v) => setFilters((p) => ({ ...p, maxPrice: v }))}
-          />
-          <NumberField
-            label="m² min"
-            value={filters.minArea ?? ""}
-            onChange={(v) => setFilters((p) => ({ ...p, minArea: v }))}
-          />
-          <NumberField
-            label="Zimmer min"
-            value={filters.minRooms ?? ""}
-            onChange={(v) => setFilters((p) => ({ ...p, minRooms: v }))}
-          />
-        </div>
-
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-          <button
-            onClick={() => setFilters(defaultFilters)}
-            className="rounded-2xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 backdrop-blur transition hover:bg-white/10"
-          >
-            Zurücksetzen
-          </button>
-
-          <div className="text-xs text-white/55">
-            Tipp: Viele Details/Unterlagen sind “auf Anfrage” verfügbar.
+          {/* Select + number row */}
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+            <FilterSelect
+              label="Typ"
+              value={filters.variant}
+              onChange={(v) => setFilters((p) => ({ ...p, variant: v as any }))}
+              options={[
+                ["any", "Alle Typen"],
+                ["ready", "Schlüsselfertig"],
+                ["build", "Bauprojekt"],
+                ["investment", "Investment"],
+              ]}
+            />
+            <FilterSelect
+              label="Status"
+              value={filters.status}
+              onChange={(v) => setFilters((p) => ({ ...p, status: v as any }))}
+              options={[
+                ["any", "Alle Status"],
+                ["verfügbar", "Verfügbar"],
+                ["reserviert", "Reserviert"],
+                ["in_bau", "In Bau"],
+                ["verkauft", "Verkauft"],
+              ]}
+            />
+            <FilterNumber
+              label="Preis min (€)"
+              value={filters.minPrice ?? ""}
+              onChange={(v) => setFilters((p) => ({ ...p, minPrice: v }))}
+            />
+            <FilterNumber
+              label="Preis max (€)"
+              value={filters.maxPrice ?? ""}
+              onChange={(v) => setFilters((p) => ({ ...p, maxPrice: v }))}
+            />
+            <FilterNumber
+              label="Fläche min (m²)"
+              value={filters.minArea ?? ""}
+              onChange={(v) => setFilters((p) => ({ ...p, minArea: v }))}
+            />
+            <FilterNumber
+              label="Zimmer min"
+              value={filters.minRooms ?? ""}
+              onChange={(v) => setFilters((p) => ({ ...p, minRooms: v }))}
+            />
           </div>
+
+          {/* Hint */}
+          <p className="mt-4 text-[11px] text-[color:var(--color-text-muted)]">
+            Tipp: Viele Details und Unterlagen sind „auf Anfrage" verfügbar —
+            sprechen Sie uns direkt an.
+          </p>
         </div>
       </div>
 
+      {/* Results */}
       <div className="mt-8">
         <ListingsGrid listings={filtered} />
       </div>
@@ -113,7 +144,38 @@ export function ListingsToolbar({ listings }: { listings: ListingLike[] }) {
   );
 }
 
-function Select({
+/* ── Shared field components ─────────────────────────────────────────── */
+
+const fieldBase =
+  "w-full rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface-2)] px-3.5 py-2.5 text-sm text-[color:var(--color-text)] placeholder:text-[color:var(--color-text-muted)] outline-none transition focus:border-[rgba(214,181,109,0.40)] focus:ring-1 focus:ring-[rgba(214,181,109,0.18)]";
+
+function FilterInput({
+  label,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) {
+  return (
+    <div>
+      <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-[color:var(--color-text-muted)]">
+        {label}
+      </label>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className={fieldBase}
+      />
+    </div>
+  );
+}
+
+function FilterSelect({
   label,
   value,
   onChange,
@@ -126,16 +188,16 @@ function Select({
 }) {
   return (
     <div>
-      <div className="mb-2 text-xs font-semibold uppercase tracking-widest text-white/60">
+      <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-[color:var(--color-text-muted)]">
         {label}
-      </div>
+      </label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none"
+        className={fieldBase}
       >
         {options.map(([v, t]) => (
-          <option key={v} value={v} className="text-black">
+          <option key={v} value={v} className="bg-[#061523] text-white">
             {t}
           </option>
         ))}
@@ -144,7 +206,7 @@ function Select({
   );
 }
 
-function NumberField({
+function FilterNumber({
   label,
   value,
   onChange,
@@ -155,21 +217,20 @@ function NumberField({
 }) {
   return (
     <div>
-      <div className="mb-2 text-xs font-semibold uppercase tracking-widest text-white/60">
+      <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-[color:var(--color-text-muted)]">
         {label}
-      </div>
+      </label>
       <input
         value={value}
         onChange={(e) => {
           const raw = e.target.value.trim();
           if (!raw) return onChange(undefined);
-
-          const num = globalThis.Number(raw); // ✅ garantiert der echte Number()
+          const num = globalThis.Number(raw);
           onChange(globalThis.Number.isFinite(num) ? num : undefined);
         }}
         inputMode="numeric"
         placeholder="—"
-        className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/20"
+        className={fieldBase}
       />
     </div>
   );
