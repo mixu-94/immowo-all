@@ -25,6 +25,8 @@ export default function SmartImage({
 
   return (
     <div className="relative h-full w-full overflow-hidden">
+
+      {/* ── Actual image – hidden until fully loaded ── */}
       <Image
         {...props}
         draggable={false}
@@ -32,7 +34,7 @@ export default function SmartImage({
         blurDataURL={blur}
         className={[
           className ?? "",
-          "transition-opacity duration-500",
+          "transition-opacity duration-700 ease-out",
           loaded ? "opacity-100" : "opacity-0",
         ].join(" ")}
         onLoad={(e) => {
@@ -41,40 +43,84 @@ export default function SmartImage({
         }}
       />
 
+      {/* ── Skeleton overlay – visible while loading ── */}
       {withSkeleton && !loaded && (
-        <div className="pointer-events-none absolute inset-0">
-          {/* Base tint */}
-          <div className="absolute inset-0 bg-neutral-900/70" />
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
 
-          {/* Subtle glow to make loader feel premium */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(255,255,255,0.08),transparent_55%)]" />
+          {/* 1 · Dark navy base */}
+          <div
+            className="absolute inset-0"
+            style={{ backgroundColor: "var(--color-bg)" }}
+          />
 
-          {/* Center loader */}
-          <div className="absolute inset-0 grid place-items-center">
-            <div className="flex flex-col items-center gap-3">
-              <div className="relative h-12 w-12">
-                {/* Outer ring */}
-                <div className="absolute inset-0 rounded-full border border-white/20" />
-                {/* Spinning arc */}
-                <div className="absolute inset-0 rounded-full border-2 border-white/70 border-t-transparent border-r-transparent animate-[smartSpin_0.9s_linear_infinite]" />
-              </div>
+          {/* 2 · Subtle depth (lighter centre) */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(ellipse 90% 70% at 50% 40%, rgba(255,255,255,0.035) 0%, transparent 70%)",
+            }}
+          />
 
-              <div className="text-xs font-semibold tracking-widest text-white/70">
-                LADEN…
-              </div>
+          {/* 3 · Shimmer sweep — gold streak travelling left → right */}
+          <div
+            className="absolute inset-y-0"
+            style={{
+              width: "60%",
+              left: 0,
+              background:
+                "linear-gradient(90deg, transparent 0%, rgba(214,181,109,0.14) 40%, rgba(255,255,255,0.07) 50%, rgba(214,181,109,0.14) 60%, transparent 100%)",
+              animation: "smartShimmer 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+            }}
+          />
+
+          {/* 4 · Centre: gold ring spinner + label */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+
+            {/* Ring */}
+            <div className="relative h-10 w-10">
+              {/* Static outer track */}
+              <div
+                className="absolute inset-0 rounded-full"
+                style={{ border: "1.5px solid rgba(214,181,109,0.18)" }}
+              />
+              {/* Animated arc */}
+              <div
+                className="absolute inset-0 rounded-full"
+                style={{
+                  border: "2px solid transparent",
+                  borderTopColor: "rgba(214,181,109,0.85)",
+                  borderRightColor: "rgba(214,181,109,0.3)",
+                  animation: "smartSpin 0.85s linear infinite",
+                }}
+              />
             </div>
+
+            {/* Label */}
+            <span
+              style={{
+                fontSize: "9px",
+                fontWeight: 700,
+                letterSpacing: "0.3em",
+                color: "rgba(214,181,109,0.5)",
+                textTransform: "uppercase",
+              }}
+            >
+              LADEN
+            </span>
           </div>
+
         </div>
       )}
 
+      {/* ── Keyframes ── */}
       <style jsx global>{`
         @keyframes smartSpin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes smartShimmer {
+          0%   { transform: translateX(-120%); }
+          100% { transform: translateX(280%);  }
         }
       `}</style>
     </div>

@@ -64,11 +64,14 @@ export async function payloadFetch<T>(path: string, opts: FetchOptions = {}): Pr
         headers.Authorization = `Bearer ${config.apiKey}`;
     }
 
+    // If revalidate is set, let Next.js ISR handle caching (don't also set cache: no-store)
+    const cacheValue = opts.cache ?? (opts.next?.revalidate !== undefined ? undefined : "no-store");
+
     const res = await fetch(url, {
         method: opts.method ?? "GET",
         headers,
         body: opts.body ? JSON.stringify(opts.body) : undefined,
-        cache: opts.cache ?? "no-store",
+        ...(cacheValue !== undefined ? { cache: cacheValue } : {}),
         next: opts.next,
     });
 
