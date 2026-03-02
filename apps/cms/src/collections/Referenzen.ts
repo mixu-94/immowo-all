@@ -336,7 +336,7 @@ export const Referenzen: CollectionConfig = {
               type: 'group',
               label: 'Testimonial (optional)',
               fields: [
-                { name: 'quote', type: 'textarea', label: 'Zitat', required: true },
+                { name: 'quote', type: 'textarea', label: 'Zitat' },
                 { name: 'author', type: 'text', label: 'Person (anonymisiert)' },
                 { name: 'role', type: 'text', label: 'Rolle / Typ' },
               ],
