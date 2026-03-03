@@ -109,16 +109,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="de" className="">
-      <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-      </head>
       <ConsentProvider>
         <CookieBanner />
         <Navbar />
-        <body className={`antialiased mt-14 bg-[#050B1A]`}>{children}</body>
+        <body className="antialiased mt-14 bg-[#050B1A]">
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          />
+          {children}
+        </body>
         <Footer />
       </ConsentProvider>
     </html>
