@@ -14,6 +14,7 @@ export const Unternehmen: GlobalConfig = {
   admin: {
     group: 'Website',
     description: 'Unternehmensseite: Hero, Highlights, Prozess, Werte, Zahlen, CTA.',
+    hidden: ({ user }) => (user as any)?.role === 'makler',
   },
   access: {
     read: () => true,

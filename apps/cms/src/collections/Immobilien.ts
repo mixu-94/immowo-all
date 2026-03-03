@@ -1,6 +1,6 @@
 import type { Access, CollectionConfig } from 'payload'
 
-type Role = 'admin' | 'editor'
+type Role = 'admin' | 'editor' | 'makler'
 
 type UserLike = {
   id?: string | number
@@ -14,14 +14,16 @@ function getUser(reqUser: unknown): UserLike {
 
 const canEditContent: Access = ({ req }) => {
   const user = getUser(req.user)
-  return Boolean(user?.role && (user.role === 'admin' || user.role === 'editor'))
+  return Boolean(
+    user?.role && (user.role === 'admin' || user.role === 'editor' || user.role === 'makler'),
+  )
 }
 
 const canReadPublishedOrEditors: Access = ({ req }) => {
   const user = getUser(req.user)
 
-  // Admin/Editor dürfen alles sehen (auch Entwürfe)
-  if (user?.role === 'admin' || user?.role === 'editor') return true
+  // Admin/Editor/Makler dürfen alles sehen (auch Entwürfe)
+  if (user?.role === 'admin' || user?.role === 'editor' || user?.role === 'makler') return true
 
   // Öffentlich nur veröffentlichte Inhalte
   return { _status: { equals: 'published' } }
@@ -150,7 +152,17 @@ export const Immobilien: CollectionConfig = {
               name: 'badge',
               type: 'text',
               label: 'Badge (optional)',
-              admin: { description: 'Kleine Zusatzinfo im Header (z. B. „Neubau“).' },
+              admin: { description: 'Kleine Zusatzinfo im Header (z. B. \u201eNeubau\u201c).' },
+            },
+            {
+              name: 'ansprechpartner',
+              type: 'relationship',
+              label: 'Ansprechpartner (Makler)',
+              relationTo: 'makler',
+              admin: {
+                position: 'sidebar',
+                description: 'Makler, der auf der Objektseite angezeigt wird.',
+              },
             },
           ],
         },

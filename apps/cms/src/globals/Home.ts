@@ -14,6 +14,7 @@ export const Home: GlobalConfig = {
   admin: {
     group: 'Website',
     description: 'Inhalte der Startseite: Hero, USPs, Sektionen, CTA.',
+    hidden: ({ user }) => (user as any)?.role === 'makler',
   },
   access: {
     read: () => true,

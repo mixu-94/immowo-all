@@ -1,5 +1,5 @@
 // src/lib/data/listings.ts
-import type { CategoryRow, Listing, EstateDetails } from "@/lib/types/listings";
+import type { CategoryRow, Listing, EstateDetails, MaklerContact } from "@/lib/types/listings";
 import { payloadFind } from "@/lib/payloud";
 
 const ESTATE_BASE_PATH = "/objekte";
@@ -1044,6 +1044,16 @@ type PayloadImmobilie = {
         note?: string;
     };
     seo?: { metaTitle?: string; metaDescription?: string; ogImage?: PayloadMedia };
+    ansprechpartner?: {
+        id: number | string;
+        name: string;
+        titleRole?: string;
+        phone?: string;
+        email?: string;
+        photo?: PayloadMedia;
+        availability?: string;
+        focus?: { tag: string }[];
+    } | null;
 };
 
 function mapPayloadToEstateDetails(p: PayloadImmobilie): EstateDetails {
@@ -1119,6 +1129,18 @@ function mapPayloadToEstateDetails(p: PayloadImmobilie): EstateDetails {
                   description: p.seo.metaDescription,
                   ogImage: resolveMediaUrl(p.seo.ogImage?.url),
               }
+            : undefined,
+        ansprechpartner: p.ansprechpartner
+            ? ({
+                  id: String(p.ansprechpartner.id),
+                  name: p.ansprechpartner.name,
+                  titleRole: p.ansprechpartner.titleRole,
+                  phone: p.ansprechpartner.phone,
+                  email: p.ansprechpartner.email,
+                  photoUrl: resolveMediaUrl(p.ansprechpartner.photo?.url),
+                  availability: p.ansprechpartner.availability,
+                  focus: p.ansprechpartner.focus?.map((f) => f.tag),
+              } satisfies MaklerContact)
             : undefined,
     };
 }

@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
+import { useAuth } from '@payloadcms/ui'
 
 type CountState = {
   verfuegbar: number
@@ -36,6 +37,9 @@ async function fetchCount(url: string) {
 }
 
 export default function BeforeDashboard() {
+  const { user } = useAuth()
+  const isMakler = (user as any)?.role === 'makler'
+
   const [counts, setCounts] = useState<CountState>({
     verfuegbar: 0,
     reserviert: 0,
@@ -109,14 +113,18 @@ export default function BeforeDashboard() {
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[11px] font-semibold tracking-[0.16em] text-white/70">
               <span className="h-2 w-2 rounded-full bg-[var(--immowo-accent)]" />
-              IMMOBILIEN • DASHBOARD
+              {isMakler ? 'MAKLER \u2022 PORTAL' : 'IMMOBILIEN \u2022 DASHBOARD'}
             </div>
 
             <h1 className="mt-3 text-lg font-semibold tracking-tight text-white md:text-xl">
-              Überblick &amp; Verwaltung
+              {isMakler
+                ? 'Willkommen im Makler-Portal'
+                : '\u00dcberblick & Verwaltung'}
             </h1>
             <p className="mt-1 max-w-2xl text-sm leading-relaxed text-white/70">
-              Immobilien anlegen, pflegen und veröffentlichen – inklusive Medien, Exposé und SEO.
+              {isMakler
+                ? 'Immobilien anlegen und verwalten \u2013 Ihr pers\u00f6nliches Portal bei Immowo Ventures.'
+                : 'Immobilien anlegen, pflegen und ver\u00f6ffentlichen \u2013 inklusive Medien, Expos\u00e9 und SEO.'}
             </p>
           </div>
 
@@ -142,20 +150,37 @@ export default function BeforeDashboard() {
             >
               Immobilien verwalten
             </Link>
-            <Link
-              href="/admin/collections/media"
-              className="
-                inline-flex items-center justify-center rounded-full
-                border border-white/10 bg-white/[0.03]
-                px-5 py-2.5 text-sm font-semibold text-white/80
-                transition hover:bg-white/[0.06] active:scale-[0.99]
-              "
-            >
-              Medien
-            </Link>
+            {!isMakler && (
+              <Link
+                href="/admin/collections/media"
+                className="
+                  inline-flex items-center justify-center rounded-full
+                  border border-white/10 bg-white/[0.03]
+                  px-5 py-2.5 text-sm font-semibold text-white/80
+                  transition hover:bg-white/[0.06] active:scale-[0.99]
+                "
+              >
+                Medien
+              </Link>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Makler-Kalender-Teaser */}
+      {isMakler && (
+        <div className="rounded-2xl border border-[rgba(214,181,109,0.20)] bg-white/[0.04] p-5">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-white">Kalender & Terminvergabe</span>
+            <span className="rounded-full border border-[rgba(214,181,109,0.30)] bg-[rgba(214,181,109,0.08)] px-2 py-0.5 text-[11px] font-semibold text-[var(--immowo-accent)]">
+              Demnächst
+            </span>
+          </div>
+          <p className="mt-2 text-sm leading-relaxed text-white/65">
+            Automatische Terminvergabe f\u00fcr Besichtigungen direkt \u00fcber die Website \u2013 dieses Feature kommt bald.
+          </p>
+        </div>
+      )}
 
       {/* KPIs */}
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">

@@ -9,6 +9,7 @@ import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Immobilien } from './collections/Immobilien'
 import { Referenzen } from './collections/Referenzen'
+import { Makler } from './collections/Makler'
 
 import { Home } from './globals/Home'
 import { Unternehmen } from './globals/Unternehmen'
@@ -36,7 +37,7 @@ export default buildConfig({
       beforeDashboard: ['@/components/payload-admin/BeforeDashboard'],
     },
   },
-  collections: [Users, Media, Immobilien, Referenzen],
+  collections: [Users, Media, Immobilien, Referenzen, Makler],
   globals: [SiteSettings, Home, Unternehmen, Impressum, Datenschutz, AGB, Widerruf, Cookies],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

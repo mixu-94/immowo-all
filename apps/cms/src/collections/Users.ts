@@ -1,6 +1,6 @@
 import type { Access, CollectionConfig } from 'payload'
 
-type Role = 'admin' | 'editor'
+type Role = 'admin' | 'editor' | 'makler'
 
 type UserLike = {
   id?: string | number
@@ -50,6 +50,7 @@ export const Users: CollectionConfig = {
       options: [
         { label: 'Admin', value: 'admin' },
         { label: 'Editor (Kunde)', value: 'editor' },
+        { label: 'Makler', value: 'makler' },
       ],
       saveToJWT: true,
       access: {
@@ -58,7 +59,22 @@ export const Users: CollectionConfig = {
         update: ({ req }) => Boolean(getUser(req.user)?.role === 'admin'),
       },
       admin: {
-        description: 'Editor kann Inhalte pflegen, Admin verwaltet System & Benutzer.',
+        description: 'Editor kann Inhalte pflegen, Admin verwaltet System & Benutzer. Makler kann Immobilien anlegen und bearbeiten.',
+      },
+    },
+    {
+      name: 'maklerProfile',
+      type: 'relationship',
+      label: 'Makler-Profil',
+      relationTo: 'makler',
+      saveToJWT: true,
+      admin: {
+        description: 'Verkn\u00fcpftes Makler-Profil (nur bei Rolle "Makler" relevant).',
+        condition: (data) => data?.role === 'makler',
+      },
+      access: {
+        read: ({ req }) => Boolean(getUser(req.user)?.role === 'admin'),
+        update: ({ req }) => Boolean(getUser(req.user)?.role === 'admin'),
       },
     },
   ],

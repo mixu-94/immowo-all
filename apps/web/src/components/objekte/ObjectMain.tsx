@@ -42,16 +42,16 @@ export function ObjectMain({ listing }: { listing: EstateDetails }) {
     title,
   )}`;
 
-  // TODO: später aus listing / payload ziehen
+  const makler = listing.ansprechpartner;
   const agent = {
-    name: "Max Mustermann",
-    role: "Immobilienberater • ArchiVend",
-    phone: "+49 123 456 789",
-    phoneHref: "tel:+49123456789",
-    email: "makler@archivend.de",
-    emailHref: "mailto:makler@archivend.de",
-    imageSrc: "/assets/team/makler.jpg",
-    availability: "Mo–Fr 9–18 Uhr",
+    name: makler?.name ?? "Immowo Ventures",
+    role: makler?.titleRole ?? "Immobilienberatung",
+    phone: makler?.phone ?? "+49 821 / 000 000",
+    phoneHref: makler?.phone ? `tel:${makler.phone.replace(/\s/g, "")}` : "tel:+4982100000",
+    email: makler?.email ?? "kontakt@immowo.de",
+    emailHref: makler?.email ? `mailto:${makler.email}` : "mailto:kontakt@immowo.de",
+    imageSrc: makler?.photoUrl ?? null,
+    availability: makler?.availability ?? "Mo\u2013Fr 9\u201318 Uhr",
   };
 
   const ctaText =
@@ -226,14 +226,20 @@ export function ObjectMain({ listing }: { listing: EstateDetails }) {
             title="Ihr Ansprechpartner"
           >
             <div className="flex items-start gap-4">
-              <div className="relative h-16 w-16 overflow-hidden rounded-2xl border border-[rgba(214,181,109,0.22)] bg-[rgba(255,255,255,0.06)]">
-                <Image
-                  src={agent.imageSrc}
-                  alt={agent.name}
-                  fill
-                  className="object-cover"
-                  sizes="64px"
-                />
+              <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl border border-[rgba(214,181,109,0.22)] bg-[rgba(255,255,255,0.06)]">
+                {agent.imageSrc ? (
+                  <Image
+                    src={agent.imageSrc}
+                    alt={agent.name}
+                    fill
+                    className="object-cover"
+                    sizes="64px"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-xl font-semibold text-[rgba(214,181,109,0.7)]">
+                    {agent.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
               </div>
 
               <div className="min-w-0">

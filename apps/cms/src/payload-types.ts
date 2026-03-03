@@ -71,6 +71,7 @@ export interface Config {
     media: Media;
     immobilien: Immobilien;
     referenzen: Referenzen;
+    makler: Makler;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -82,6 +83,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     immobilien: ImmobilienSelect<false> | ImmobilienSelect<true>;
     referenzen: ReferenzenSelect<false> | ReferenzenSelect<true>;
+    makler: MaklerSelect<false> | MaklerSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -146,9 +148,13 @@ export interface UserAuthOperations {
 export interface User {
   id: number;
   /**
-   * Editor kann Inhalte pflegen, Admin verwaltet System & Benutzer.
+   * Editor kann Inhalte pflegen, Admin verwaltet System & Benutzer. Makler kann Immobilien anlegen und bearbeiten.
    */
-  role: 'admin' | 'editor';
+  role: 'admin' | 'editor' | 'makler';
+  /**
+   * Verknüpftes Makler-Profil (nur bei Rolle "Makler" relevant).
+   */
+  maklerProfile?: (number | null) | Makler;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -167,6 +173,42 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
+}
+/**
+ * Ansprechpartner & Makler verwalten.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "makler".
+ */
+export interface Makler {
+  id: number;
+  name: string;
+  /**
+   * z.B. "Immobilienberater" oder "Projektentwicklung"
+   */
+  titleRole?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  photo?: (number | null) | Media;
+  /**
+   * z.B. "Mo–Fr 9–18 Uhr"
+   */
+  availability?: string | null;
+  /**
+   * z.B. "Schlüsselfertig", "Kauf ab Plan", "Kapitalanlage"
+   */
+  focus?:
+    | {
+        tag: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Login-Account des Maklers (nur Admin sichtbar).
+   */
+  linkedUser?: (number | null) | User;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -239,6 +281,10 @@ export interface Immobilien {
    * Kleine Zusatzinfo im Header (z. B. „Neubau“).
    */
   badge?: string | null;
+  /**
+   * Makler, der auf der Objektseite angezeigt wird.
+   */
+  ansprechpartner?: (number | null) | Makler;
   heroMedia?: (number | null) | Media;
   gallery?:
     | {
@@ -457,6 +503,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'referenzen';
         value: number | Referenzen;
+      } | null)
+    | ({
+        relationTo: 'makler';
+        value: number | Makler;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -506,6 +556,7 @@ export interface PayloadMigration {
  */
 export interface UsersSelect<T extends boolean = true> {
   role?: T;
+  maklerProfile?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -584,6 +635,7 @@ export interface ImmobilienSelect<T extends boolean = true> {
   yearBuilt?: T;
   availability?: T;
   badge?: T;
+  ansprechpartner?: T;
   heroMedia?: T;
   gallery?:
     | T
@@ -742,6 +794,27 @@ export interface ReferenzenSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "makler_select".
+ */
+export interface MaklerSelect<T extends boolean = true> {
+  name?: T;
+  titleRole?: T;
+  phone?: T;
+  email?: T;
+  photo?: T;
+  availability?: T;
+  focus?:
+    | T
+    | {
+        tag?: T;
+        id?: T;
+      };
+  linkedUser?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

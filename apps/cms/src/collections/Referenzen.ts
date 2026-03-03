@@ -41,6 +41,7 @@ export const Referenzen: CollectionConfig = {
     useAsTitle: 'title',
     defaultColumns: ['title', 'category', 'year', 'isFeatured', 'updatedAt'],
     description: 'Referenzprojekte verwalten: Neubau, Sanierung, Verkauf, Projektentwicklung.',
+    hidden: ({ user }) => (user as any)?.role === 'makler',
   },
   access: {
     read: canReadPublishedOrEditors,

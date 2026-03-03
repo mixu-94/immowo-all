@@ -10,6 +10,13 @@ Monorepo with two apps:
 
 **Primary goal:** Migrate ALL content (texts, images, videos, PDFs, CTAs) from static data into Payload CMS. The Next.js frontend consumes Payload as its single source of truth.
 
+> **Full documentation:** See `/docs/` folder for detailed reference:
+> - `docs/README.md` — Quick Start, URLs, useful commands
+> - `docs/database.md` — All collections, globals, fields, relationships
+> - `docs/roles-access.md` — User roles, access matrix, accounts, how to add Makler
+> - `docs/architecture.md` — System architecture, data flow, ENV vars
+> - `docs/frontend.md` — Routes, components, design system
+
 ---
 
 ## Monorepo Structure
@@ -31,8 +38,9 @@ apps/
 ├── cms/src/
 │   ├── collections/
 │   │   ├── Immobilien.ts    # Main listings collection (fully built)
+│   │   ├── Makler.ts        # Ansprechpartner/Makler collection
 │   │   ├── Media.ts
-│   │   └── Users.ts
+│   │   └── Users.ts         # Auth collection (roles: admin, editor, makler)
 │   ├── globals/
 │   │   ├── Home.ts          # Home page content global
 │   │   ├── Unternehmen.ts   # Company page global
@@ -42,8 +50,13 @@ apps/
 │   │   ├── AGB.ts
 │   │   ├── Widerruf.ts
 │   │   └── Cookies.ts
-│   ├── access/              # Access control functions
-│   ├── hooks/               # Payload lifecycle hooks
+│   ├── components/
+│   │   └── payload-admin/BeforeDashboard.tsx  # Custom dashboard (role-aware)
+│   ├── access/              # Access control functions (inline in collections)
+│   ├── hooks/               # Payload lifecycle hooks (inline in fields)
+│   ├── seed/
+│   │   ├── seed.ts          # Main seed script (immobilien data)
+│   │   └── makler-seed.ts   # Makler profiles + user accounts seed
 │   └── payload.config.ts    # Main config (PostgreSQL + Lexical)
 ```
 
@@ -119,41 +132,60 @@ bg-[color:var(--color-accent)] hover:bg-[color:var(--color-accent-hover)]
 
 ---
 
-## CMS Integration — Current State
+## CMS Integration — Current State (COMPLETED)
 
-### Already built in Payload:
-- `Immobilien` collection — fully modelled (all fields including energy, commission, SEO)
-- `Home` global
-- `Unternehmen` global
+### Built in Payload (all connected to frontend):
+- `Immobilien` collection — fully modelled + connected (`lib/data/listings.ts`)
+- `Makler` collection — Ansprechpartner, shown on `/objekte/[slug]` + `/kontakt`
+- `Referenzen` collection — fully connected (`lib/data/references.ts`)
+- `Home` global — connected (`lib/cms/home.ts`)
+- `Unternehmen` global — connected (`lib/cms/companyPage.ts`)
 - `SiteSettings` global
 - Legal globals (Impressum, Datenschutz, AGB, Widerruf, Cookies)
 
-### Currently using fallback data (not yet connected to Payload):
-- `apps/web/src/lib/cms/home.ts` — returns `DEFAULT_HOME_CONTENT`
-- `apps/web/src/lib/cms/companyPage.ts` — returns fallback
-- `apps/web/src/lib/data/listings.ts` — static data
-- `apps/web/src/lib/data/references.ts` — static data
+### All fetchers use Payload with static fallback:
+- `fetchHomeContent()` → `payloadGlobal('home')` → fallback: DEFAULT_HOME_CONTENT
+- `fetchCompanyPageContent()` → `payloadGlobal('unternehmen')` → fallback: DEFAULT_COMPANY_PAGE_CONTENT
+- `getListings()` / `getListingBySlug()` → `payloadFind('immobilien')` → fallback: static estates
+- `getReferences()` / `getReferenceBySlug()` → `payloadFind('referenzen')` → fallback: static refs
+- `getMakler()` → `payloadFind('makler')` → fallback: 2 hardcoded placeholder persons
 
 ### Payload HTTP helper: `apps/web/src/lib/payloud.ts`
 Provides: `payloadFetch`, `payloadFind`, `payloadFindByID`, `payloadGlobal`, `payloadCreate`.
-Use these to connect the web app to Payload's REST API.
 
-Env vars needed:
 ```
-PAYLOAD_BASE_URL=http://localhost:3001   # or production URL
-PAYLOAD_API_KEY=...                       # optional Bearer token
+PAYLOAD_BASE_URL=http://localhost:3000
+PAYLOAD_API_KEY=   # optional Bearer token
 ```
 
 ---
 
-## Migration Work Plan
+## Makler Feature
 
-1. **`payloadFetch` helper** — already built in `lib/payloud.ts`, verify it's robust
-2. **Listings** — update `lib/data/listings.ts` to fetch from Payload `/api/immobilien`
-3. **References** — update `lib/data/references.ts` to fetch from Payload
-4. **Globals** — replace fallback in `lib/cms/home.ts` and `lib/cms/companyPage.ts` with real Payload Global fetches
-5. **SEO** — update `lib/seo/listingMetadata.ts` and `lib/seo/referencesMetadata.ts` to use CMS SEO fields
-6. **Webhooks** — optional: on-demand revalidation via Next.js route handler
+### Collections & Roles:
+- `makler` collection: name, titleRole, phone, email, photo, availability, focus[], linkedUser
+- Users `role`: `admin` | `editor` | **`makler`** (new)
+- Users `maklerProfile`: relationship → makler (saveToJWT: true)
+- Immobilien `ansprechpartner`: relationship → makler (sidebar, depth 1)
+
+### Access: Makler role can:
+- ✅ See and edit ALL Immobilien (including drafts), publish directly
+- ✅ Upload media
+- ❌ Cannot access: Referenzen, Home global, Unternehmen global, SiteSettings, Legal globals
+- ❌ Cannot delete Immobilien, cannot manage Users or Makler collection
+
+### Dashboard:
+- `BeforeDashboard.tsx` uses `useAuth()` to detect role
+- Makler sees: personalized welcome + same KPI stats + calendar teaser placeholder
+
+### Fallback behavior:
+- If no `ansprechpartner` set on listing → `/objekte/[slug]` shows "Immowo Ventures" generic info
+- If Payload unreachable on `/kontakt` → shows 2 hardcoded placeholder persons
+
+### Dev accounts (Makler):
+- `max.mustermann@immowo.de` / `Makler1234!`
+- `julia.musterfrau@immowo.de` / `Makler1234!`
+- `thomas.bergmann@immowo.de` / `Makler1234!`
 
 ### Media mapping pattern:
 Payload returns `{ url, filename, mimeType }` inside relations. Convert relative URLs to absolute if needed:

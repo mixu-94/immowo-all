@@ -202,6 +202,18 @@ export type ListingSEO = {
     canonicalUrl?: string;
 };
 
+/** Makler / Ansprechpartner (aus Payload Makler-Collection) */
+export type MaklerContact = {
+    id: string;
+    name: string;
+    titleRole?: string;
+    phone?: string;
+    email?: string;
+    photoUrl?: string;
+    availability?: string;
+    focus?: string[];
+};
+
 /**
  * ============================================================================
  * BASE LISTING
@@ -285,6 +297,9 @@ export type EstateDetails = Listing & {
 
     // optional: SEO
     seo?: ListingSEO;
+
+    // Ansprechpartner (Makler)
+    ansprechpartner?: MaklerContact;
 };
 
 /**
