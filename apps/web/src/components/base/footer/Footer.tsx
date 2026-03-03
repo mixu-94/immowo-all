@@ -45,7 +45,7 @@ const Footer = async () => {
         <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
           {/* Left: Legal links */}
           <div className="flex flex-col gap-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/70">
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--color-text-muted)]">
               Rechtliches
             </p>
 
@@ -56,7 +56,7 @@ const Footer = async () => {
                     href={item.href}
                     className="
                       text-sm font-semibold uppercase tracking-[0.22em]
-                      text-white/85
+                      text-[color:var(--color-text)]
                       transition hover:text-white
                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-accent)]/60
                       focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--color-bg)]
@@ -81,7 +81,7 @@ const Footer = async () => {
           {/* Right: Social links (from SiteSettings) */}
           {settings.socials.length > 0 && (
             <div className="flex flex-col gap-4 md:items-end">
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/70">
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--color-text-muted)]">
                 Social Media
               </p>
               <div className="flex flex-wrap gap-5">
@@ -91,7 +91,7 @@ const Footer = async () => {
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm font-semibold uppercase tracking-[0.22em] text-white/70 transition hover:text-white"
+                    className="text-sm font-semibold uppercase tracking-[0.22em] text-[color:var(--color-text-muted)] transition hover:text-white"
                   >
                     {social.label}
                   </Link>
@@ -103,7 +103,7 @@ const Footer = async () => {
 
         {/* bottom row */}
         <div className="mt-10 flex flex-col gap-4 border-t border-[color:var(--color-border)] pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="text-xs font-semibold uppercase tracking-[0.22em] text-white/60">
+          <div className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--color-text-muted)]">
             &copy; {year} {settings.company} &ndash; Alle Rechte vorbehalten
           </div>
         </div>

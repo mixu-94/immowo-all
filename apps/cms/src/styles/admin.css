@@ -1,0 +1,142 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Immowo Ventures — Payload Admin Dark Theme
+   Überschreibt Payload CSS-Variablen mit Navy + Champagne Gold Branding
+   ───────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* ── Hintergrund & Oberflächen ──────────────────────────────────────────── */
+  --theme-bg:                   #050B1A;
+  --theme-input-bg:             rgba(255, 255, 255, 0.04);
+  --theme-elevation-0:          #050B1A;
+  --theme-elevation-50:         rgba(255, 255, 255, 0.02);
+  --theme-elevation-100:        rgba(255, 255, 255, 0.03);
+  --theme-elevation-150:        rgba(255, 255, 255, 0.04);
+  --theme-elevation-200:        rgba(255, 255, 255, 0.05);
+  --theme-elevation-250:        rgba(255, 255, 255, 0.06);
+  --theme-elevation-300:        rgba(255, 255, 255, 0.07);
+  --theme-elevation-350:        rgba(255, 255, 255, 0.08);
+  --theme-elevation-400:        rgba(255, 255, 255, 0.09);
+  --theme-elevation-450:        rgba(255, 255, 255, 0.10);
+  --theme-elevation-500:        rgba(255, 255, 255, 0.11);
+  --theme-elevation-550:        rgba(255, 255, 255, 0.12);
+  --theme-elevation-600:        rgba(255, 255, 255, 0.14);
+  --theme-elevation-650:        rgba(255, 255, 255, 0.16);
+  --theme-elevation-700:        rgba(255, 255, 255, 0.18);
+  --theme-elevation-750:        rgba(255, 255, 255, 0.20);
+  --theme-elevation-800:        rgba(255, 255, 255, 0.24);
+  --theme-elevation-850:        rgba(255, 255, 255, 0.28);
+  --theme-elevation-900:        rgba(255, 255, 255, 0.32);
+  --theme-elevation-950:        rgba(255, 255, 255, 0.40);
+  --theme-elevation-1000:       rgba(255, 255, 255, 0.92);
+
+  /* ── Textfarben ─────────────────────────────────────────────────────────── */
+  --theme-text:                 rgba(255, 255, 255, 0.92);
+  --theme-text-muted:           rgba(255, 255, 255, 0.55);
+
+  /* ── Rahmen ─────────────────────────────────────────────────────────────── */
+  --theme-border-color:         rgba(255, 255, 255, 0.10);
+
+  /* ── Gold Akzent (Champagne Gold #C9A96E) ──────────────────────────────── */
+  --color-base-800:             #C9A96E;
+  --color-base-900:             #D4B880;
+  --color-base-1000:            #E0C990;
+
+  /* ── Erfolg / Fehler / Warnung ──────────────────────────────────────────── */
+  --color-success-500:          #4ade80;
+  --color-success-400:          #86efac;
+  --color-error-500:            #f87171;
+  --color-error-400:            #fca5a5;
+  --color-warning-500:          #fbbf24;
+
+  /* ── Radius (etwas moderner) ─────────────────────────────────────────────── */
+  --border-radius-s:            4px;
+  --border-radius-m:            8px;
+  --border-radius-l:            12px;
+}
+
+/* ── Überschreibe die data-theme="light" Defaults ───────────────────────────── */
+[data-theme='light'],
+:root {
+  color-scheme: dark;
+}
+
+/* ── Nav-Sidebar ─────────────────────────────────────────────────────────────── */
+.nav {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.nav__header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ── Aktive Nav-Links Gold hervorheben ───────────────────────────────────────── */
+.nav__link--active,
+.nav__link--active:hover {
+  background-color: rgba(201, 169, 110, 0.12) !important;
+  color: #C9A96E !important;
+  border-left: 2px solid #C9A96E !important;
+}
+
+/* ── Buttons — Primary als Gold ─────────────────────────────────────────────── */
+.btn--style-primary {
+  background-color: #C9A96E !important;
+  color: #050B1A !important;
+  border-color: #C9A96E !important;
+  font-weight: 600 !important;
+}
+
+.btn--style-primary:hover {
+  background-color: #D4B880 !important;
+  border-color: #D4B880 !important;
+}
+
+/* ── Publish-Button ─────────────────────────────────────────────────────────── */
+.publish-many__btn,
+[class*='saveButton']:not([class*='draft']) {
+  background-color: #C9A96E !important;
+  color: #050B1A !important;
+}
+
+/* ── Collection-Header ──────────────────────────────────────────────────────── */
+.collection-list__header,
+.list-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ── Tabellen-Zeilen ─────────────────────────────────────────────────────────── */
+.row--click:hover {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+/* ── Status Badges ───────────────────────────────────────────────────────────── */
+.pill--style-light {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+
+/* ── Card / Panel Oberflächen ────────────────────────────────────────────────── */
+.render-fields,
+.field-type,
+[class*='Form__'] {
+  background-color: transparent !important;
+}
+
+/* ── Scrollbar Styling (Webkit) ──────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(201, 169, 110, 0.4);
+}

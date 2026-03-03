@@ -3,12 +3,22 @@
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '@payloadcms/ui'
+import MaklerKalender from './MaklerKalender'
 
 type CountState = {
   verfuegbar: number
   reserviert: number
   verkauft: number
   drafts: number
+  neueAnfragen: number
+}
+
+type AnfrageItem = {
+  id: string | number
+  name?: string
+  topic?: string
+  status?: string
+  receivedAt?: string
 }
 
 type RecentItem = {
@@ -45,8 +55,10 @@ export default function BeforeDashboard() {
     reserviert: 0,
     verkauft: 0,
     drafts: 0,
+    neueAnfragen: 0,
   })
   const [recent, setRecent] = useState<RecentItem[]>([])
+  const [anfragen, setAnfragen] = useState<AnfrageItem[]>([])
   const [loading, setLoading] = useState(true)
 
   // Build URLs (Payload REST)
@@ -60,6 +72,8 @@ export default function BeforeDashboard() {
       verkauft: `${base}${published}&where[vermarktungsStatus][equals]=verkauft`,
       drafts: `${base}&where[_status][equals]=draft`,
       recent: '/api/immobilien?limit=6&sort=-updatedAt',
+      neueAnfragen: '/api/anfragen?limit=0&where[status][equals]=neu',
+      anfragen: '/api/anfragen?limit=5&sort=-receivedAt&where[status][equals]=neu',
     }
   }, [])
 
@@ -69,20 +83,27 @@ export default function BeforeDashboard() {
     async function run() {
       try {
         setLoading(true)
-        const [verfuegbar, reserviert, verkauft, drafts] = await Promise.all([
+        const [verfuegbar, reserviert, verkauft, drafts, neueAnfragen] = await Promise.all([
           fetchCount(urls.verfuegbar),
           fetchCount(urls.reserviert),
           fetchCount(urls.verkauft),
           fetchCount(urls.drafts),
+          fetchCount(urls.neueAnfragen),
         ])
 
-        const recentRes = await fetch(urls.recent, { credentials: 'include' })
+        const [recentRes, anfrageRes] = await Promise.all([
+          fetch(urls.recent, { credentials: 'include' }),
+          fetch(urls.anfragen, { credentials: 'include' }),
+        ])
         const recentJson = (await recentRes.json()) as { docs?: RecentItem[] }
+        const anfrageJson = (await anfrageRes.json()) as { docs?: AnfrageItem[] }
         const docs = recentJson.docs ?? []
+        const anfragenDocs = anfrageJson.docs ?? []
 
         if (!mounted) return
-        setCounts({ verfuegbar, reserviert, verkauft, drafts })
+        setCounts({ verfuegbar, reserviert, verkauft, drafts, neueAnfragen })
         setRecent(docs)
+        setAnfragen(anfragenDocs)
       } catch {
         // If access rules block public fetch, we still render UI.
         if (!mounted) return
@@ -167,23 +188,22 @@ export default function BeforeDashboard() {
         </div>
       </div>
 
-      {/* Makler-Kalender-Teaser */}
-      {isMakler && (
-        <div className="rounded-2xl border border-[rgba(214,181,109,0.20)] bg-white/[0.04] p-5">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-white">Kalender & Terminvergabe</span>
-            <span className="rounded-full border border-[rgba(214,181,109,0.30)] bg-[rgba(214,181,109,0.08)] px-2 py-0.5 text-[11px] font-semibold text-[var(--immowo-accent)]">
-              Demnächst
-            </span>
-          </div>
-          <p className="mt-2 text-sm leading-relaxed text-white/65">
-            Automatische Terminvergabe f\u00fcr Besichtigungen direkt \u00fcber die Website \u2013 dieses Feature kommt bald.
-          </p>
+      {/* Kalender */}
+      <div>
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-xs font-semibold uppercase tracking-widest text-white/50">Kalender & Termine</span>
+          <Link
+            href="/admin/collections/termine"
+            className="text-xs font-semibold text-white/60 underline underline-offset-4 hover:text-white"
+          >
+            Alle Termine
+          </Link>
         </div>
-      )}
+        <MaklerKalender />
+      </div>
 
       {/* KPIs */}
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <KpiCard
           title="Verfügbar"
           value={loading ? '…' : String(counts.verfuegbar)}
@@ -205,6 +225,60 @@ export default function BeforeDashboard() {
           subtitle="Noch nicht live"
           accent
         />
+        <KpiCard
+          title="Neue Anfragen"
+          value={loading ? '…' : String(counts.neueAnfragen)}
+          subtitle="Unbearbeitet"
+          accent={counts.neueAnfragen > 0}
+          href="/admin/collections/anfragen?where[status][equals]=neu"
+        />
+      </div>
+
+      {/* Anfragen-Widget */}
+      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="text-sm font-semibold text-white">Neue Anfragen</div>
+          <Link
+            href="/admin/collections/anfragen"
+            className="text-xs font-semibold text-white/70 underline underline-offset-4 hover:text-white"
+          >
+            Alle ansehen
+          </Link>
+        </div>
+        {loading ? (
+          <div className="text-sm text-white/50">Wird geladen…</div>
+        ) : anfragen.length === 0 ? (
+          <div className="text-sm text-white/50">Keine neuen Anfragen.</div>
+        ) : (
+          <div className="divide-y divide-white/10 rounded-xl border border-white/10 bg-black/20">
+            {anfragen.map((a) => (
+              <Link
+                key={String(a.id)}
+                href={`/admin/collections/anfragen/${a.id}`}
+                className="flex items-center justify-between gap-3 p-3 hover:bg-white/[0.04]"
+              >
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-semibold text-white">{a.name ?? 'Unbekannt'}</div>
+                  <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-white/55">
+                    {a.topic && <span>{topicLabel(a.topic)}</span>}
+                    {a.receivedAt && (
+                      <>
+                        <Dot />
+                        <span>{formatDate(a.receivedAt)}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+                <span
+                  className="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                  style={{ background: 'rgba(214,181,109,0.12)', color: 'rgba(214,181,109,0.9)', border: '1px solid rgba(214,181,109,0.20)' }}
+                >
+                  Neu
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Recent + Tips */}
@@ -283,28 +357,44 @@ function KpiCard({
   value,
   subtitle,
   accent,
+  href,
 }: {
   title: string
   value: string
   subtitle: string
   accent?: boolean
+  href?: string
 }) {
-  return (
-    <div
-      className={[
-        'rounded-2xl border bg-white/[0.04] p-5 shadow-[0_18px_55px_rgba(0,0,0,0.28)]',
-        accent ? 'border-[rgba(214,181,109,0.25)]' : 'border-white/10',
-      ].join(' ')}
-    >
+  const inner = (
+    <>
       <div className="text-xs font-semibold uppercase tracking-widest text-white/60">{title}</div>
       <div className="mt-2 text-3xl font-semibold tracking-tight text-white">{value}</div>
       <div className="mt-1 text-sm text-white/65">{subtitle}</div>
       <div className="mt-4 h-px w-full bg-[linear-gradient(90deg,rgba(214,181,109,0.06),rgba(255,255,255,0.10),rgba(214,181,109,0.06))]" />
       <div className="mt-3 text-xs text-white/55">
-        Öffnen Sie die Liste, um Status &amp; Veröffentlichungen schnell zu verwalten.
+        \u00d6ffnen Sie die Liste, um Status &amp; Ver\u00f6ffentlichungen schnell zu verwalten.
       </div>
-    </div>
+    </>
   )
+  const cls = [
+    'block rounded-2xl border bg-white/[0.04] p-5 shadow-[0_18px_55px_rgba(0,0,0,0.28)]',
+    accent ? 'border-[rgba(214,181,109,0.25)]' : 'border-white/10',
+    href ? 'hover:bg-white/[0.06] transition' : '',
+  ].join(' ')
+
+  if (href) return <Link href={href} className={cls}>{inner}</Link>
+  return <div className={cls}>{inner}</div>
+}
+
+function topicLabel(topic: string) {
+  const map: Record<string, string> = {
+    allgemein: 'Allgemein',
+    expose: 'Expos\u00e9 / Unterlagen',
+    kaufen: 'Immobilie kaufen',
+    neubau: 'Neubau / Kauf ab Plan',
+    verkauf: 'Verkauf / Vermarktung',
+  }
+  return map[topic] ?? topic
 }
 
 function Dot() {

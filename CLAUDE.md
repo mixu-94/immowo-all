@@ -17,6 +17,8 @@ Monorepo with two apps:
 > - `docs/architecture.md` — System architecture, data flow, ENV vars
 > - `docs/frontend.md` — Routes, components, design system
 
+> **Credentials:** All passwords, API keys, and login credentials (admin, Makler accounts, DB, SMTP) are stored in **`.env`** at the project root. This file is git-ignored and never committed. Read it for all local dev credentials.
+
 ---
 
 ## Monorepo Structure
@@ -183,9 +185,9 @@ PAYLOAD_API_KEY=   # optional Bearer token
 - If Payload unreachable on `/kontakt` → shows 2 hardcoded placeholder persons
 
 ### Dev accounts (Makler):
-- `max.mustermann@immowo.de` / `Makler1234!`
-- `julia.musterfrau@immowo.de` / `Makler1234!`
-- `thomas.bergmann@immowo.de` / `Makler1234!`
+- `max.mustermann@immowo.de` — see `.env`
+- `julia.musterfrau@immowo.de` — see `.env`
+- `thomas.bergmann@immowo.de` — see `.env`
 
 ### Media mapping pattern:
 Payload returns `{ url, filename, mimeType }` inside relations. Convert relative URLs to absolute if needed:

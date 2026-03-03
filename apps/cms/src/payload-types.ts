@@ -72,6 +72,8 @@ export interface Config {
     immobilien: Immobilien;
     referenzen: Referenzen;
     makler: Makler;
+    anfragen: Anfragen;
+    termine: Termine;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -84,6 +86,8 @@ export interface Config {
     immobilien: ImmobilienSelect<false> | ImmobilienSelect<true>;
     referenzen: ReferenzenSelect<false> | ReferenzenSelect<true>;
     makler: MaklerSelect<false> | MaklerSelect<true>;
+    anfragen: AnfragenSelect<false> | AnfragenSelect<true>;
+    termine: TermineSelect<false> | TermineSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -465,6 +469,84 @@ export interface Referenzen {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Eingehende Kontaktanfragen vom Website-Formular.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "anfragen".
+ */
+export interface Anfragen {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string | null;
+  contactPreference?: ('telefon' | 'email') | null;
+  topic?: ('allgemein' | 'expose' | 'kaufen' | 'neubau' | 'verkauf') | null;
+  message?: string | null;
+  callbackRequested?: boolean | null;
+  preferredDate?: string | null;
+  preferredTimeWindow?: ('09-12' | '12-15' | '15-18' | '18-20') | null;
+  preferredTime?: string | null;
+  durationMinutes?: number | null;
+  /**
+   * Zugehörige Immobilie (optional)
+   */
+  listing?: (number | null) | Immobilien;
+  /**
+   * Automatisch vom Kontaktformular übernommener Titel.
+   */
+  listingTitle?: string | null;
+  status?: ('neu' | 'gelesen' | 'kontaktiert' | 'termin_vereinbart' | 'bearbeitet' | 'archiviert') | null;
+  assignedMakler?: (number | null) | Makler;
+  internalNotes?: string | null;
+  receivedAt?: string | null;
+  ipAddress?: string | null;
+  userAgent?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Besichtigungstermine und Kundentermine verwalten.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "termine".
+ */
+export interface Termine {
+  id: number;
+  date: string;
+  /**
+   * Format: HH:MM (z.B. 09:00)
+   */
+  startTime: string;
+  /**
+   * z.B. 30, 60, 90
+   */
+  durationMinutes?: number | null;
+  timezone?: string | null;
+  /**
+   * Zuständiger Makler für diesen Termin
+   */
+  makler: number | Makler;
+  /**
+   * Besichtigungsobjekt (falls zutreffend)
+   */
+  listing?: (number | null) | Immobilien;
+  customerName: string;
+  customerEmail: string;
+  customerPhone?: string | null;
+  customerMessage?: string | null;
+  /**
+   * Nur intern sichtbar
+   */
+  internalNotes?: string | null;
+  /**
+   * Zugehörige Kontaktanfrage, aus der dieser Termin entstand (optional)
+   */
+  sourceAnfrage?: (number | null) | Anfragen;
+  status?: ('geplant' | 'bestaetigt' | 'absolviert' | 'storniert') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -507,6 +589,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'makler';
         value: number | Makler;
+      } | null)
+    | ({
+        relationTo: 'anfragen';
+        value: number | Anfragen;
+      } | null)
+    | ({
+        relationTo: 'termine';
+        value: number | Termine;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -818,6 +908,54 @@ export interface MaklerSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "anfragen_select".
+ */
+export interface AnfragenSelect<T extends boolean = true> {
+  name?: T;
+  email?: T;
+  phone?: T;
+  contactPreference?: T;
+  topic?: T;
+  message?: T;
+  callbackRequested?: T;
+  preferredDate?: T;
+  preferredTimeWindow?: T;
+  preferredTime?: T;
+  durationMinutes?: T;
+  listing?: T;
+  listingTitle?: T;
+  status?: T;
+  assignedMakler?: T;
+  internalNotes?: T;
+  receivedAt?: T;
+  ipAddress?: T;
+  userAgent?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "termine_select".
+ */
+export interface TermineSelect<T extends boolean = true> {
+  date?: T;
+  startTime?: T;
+  durationMinutes?: T;
+  timezone?: T;
+  makler?: T;
+  listing?: T;
+  customerName?: T;
+  customerEmail?: T;
+  customerPhone?: T;
+  customerMessage?: T;
+  internalNotes?: T;
+  sourceAnfrage?: T;
+  status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -1024,15 +1162,41 @@ export interface Unternehman {
   createdAt?: string | null;
 }
 /**
- * Impressum Inhalte (DE).
+ * Strukturierte Pflichtangaben gemaß § 5 TMG. Alle Felder erscheinen direkt auf der Impressum-Seite.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "impressum".
  */
 export interface Impressum {
   id: number;
-  title: string;
-  content?: {
+  company: string;
+  streetAddress?: string | null;
+  city?: string | null;
+  country?: string | null;
+  ceo?: string | null;
+  /**
+   * Gemäß § 55 Abs. 2 RStV. Leer lassen wenn identisch mit Geschäftsführer.
+   */
+  responsible?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  /**
+   * Zuständiges Handelsregistergericht.
+   */
+  registergericht?: string | null;
+  hrb?: string | null;
+  /**
+   * Umsatzsteuer-Identifikationsnummer gemäß § 27a UStG. Leer lassen falls noch nicht vorhanden.
+   */
+  ustId?: string | null;
+  /**
+   * Nur ausfüllen wenn Immobilienmakler-Tätigkeit nach § 34c GewO ausgeführt wird (was hier der Fall ist).
+   */
+  gewo34cText?: string | null;
+  /**
+   * Optionaler Freitext zur Verbraucherschlichtung. Standard-Text wird angezeigt wenn leer.
+   */
+  streitbeilegung?: {
     root: {
       type: string;
       children: {
@@ -1047,6 +1211,10 @@ export interface Impressum {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Datum der letzten inhaltlichen Änderung (z.B. "23.02.2026").
+   */
+  lastUpdated?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1074,6 +1242,14 @@ export interface Datenschutz {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Falls ein Datenschutzbeauftragter bestellt ist, hier eintragen.
+   */
+  dpo?: {
+    name?: string | null;
+    email?: string | null;
+    phone?: string | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1339,8 +1515,20 @@ export interface UnternehmenSelect<T extends boolean = true> {
  * via the `definition` "impressum_select".
  */
 export interface ImpressumSelect<T extends boolean = true> {
-  title?: T;
-  content?: T;
+  company?: T;
+  streetAddress?: T;
+  city?: T;
+  country?: T;
+  ceo?: T;
+  responsible?: T;
+  phone?: T;
+  email?: T;
+  registergericht?: T;
+  hrb?: T;
+  ustId?: T;
+  gewo34cText?: T;
+  streitbeilegung?: T;
+  lastUpdated?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -1352,6 +1540,13 @@ export interface ImpressumSelect<T extends boolean = true> {
 export interface DatenschutzSelect<T extends boolean = true> {
   title?: T;
   content?: T;
+  dpo?:
+    | T
+    | {
+        name?: T;
+        email?: T;
+        phone?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

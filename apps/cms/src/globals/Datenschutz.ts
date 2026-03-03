@@ -25,9 +25,22 @@ export const Datenschutz: GlobalConfig = {
       name: 'title',
       type: 'text',
       label: 'Titel',
-      defaultValue: 'Datenschutzerklärung',
+      defaultValue: 'Datenschutzerkl\u00e4rung',
       required: true,
     },
     { name: 'content', type: 'richText', label: 'Inhalt' },
+    {
+      name: 'dpo',
+      type: 'group',
+      label: 'Datenschutzbeauftragter (optional)',
+      admin: {
+        description: 'Falls ein Datenschutzbeauftragter bestellt ist, hier eintragen.',
+      },
+      fields: [
+        { name: 'name', type: 'text', label: 'Name' },
+        { name: 'email', type: 'email', label: 'E-Mail' },
+        { name: 'phone', type: 'text', label: 'Telefon (optional)' },
+      ],
+    },
   ],
 }

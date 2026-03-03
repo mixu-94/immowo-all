@@ -31,10 +31,16 @@ export function buildReferenceMetadata(ref: Reference): Metadata {
 
     const description = truncate(descBits.join(" "));
 
-    const ogImage =
+    const rawOgImage =
         ref.seo?.ogImage ??
         ref.coverImage?.src ??
         "/assets/images/real-estate/realestate1.jpg";
+
+    // Ensure absolute URL for social share
+    const ogImage =
+        rawOgImage && BASE_URL && !rawOgImage.startsWith("http")
+            ? `${BASE_URL}${rawOgImage}`
+            : rawOgImage;
 
     return {
         title,
@@ -46,7 +52,9 @@ export function buildReferenceMetadata(ref: Reference): Metadata {
             type: "article",
             siteName: SITE_NAME,
             url,
-            images: ogImage ? [{ url: ogImage }] : undefined,
+            images: ogImage
+                ? [{ url: ogImage, width: 1200, height: 630, alt: ref.title }]
+                : undefined,
         },
         twitter: {
             card: "summary_large_image",

@@ -61,12 +61,18 @@ export function buildListingMetadata(listing: EstateDetails): Metadata {
 
     const description = truncate(descBits.join(" "));
 
-    // OG image: hero image if exists
-    const ogImage =
+    // OG image: hero image if exists — must be absolute URL for social share
+    const rawOgImage =
         listing.imageSrc ??
         anyListing.imageSrc ??
         anyListing.media?.heroImage ??
         DEFAULT_OG;
+
+    // Ensure absolute URL (Payload returns relative paths like /api/media/file/...)
+    const ogImage =
+        rawOgImage && BASE_URL && !rawOgImage.startsWith("http")
+            ? `${BASE_URL}${rawOgImage}`
+            : rawOgImage;
 
     return {
         title,
@@ -78,7 +84,9 @@ export function buildListingMetadata(listing: EstateDetails): Metadata {
             type: "article",
             siteName: SITE_NAME,
             url,
-            images: ogImage ? [{ url: ogImage }] : undefined,
+            images: ogImage
+                ? [{ url: ogImage, width: 1200, height: 630, alt: listing.title }]
+                : undefined,
         },
         twitter: {
             card: "summary_large_image",

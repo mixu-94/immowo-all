@@ -52,6 +52,23 @@ export const Referenzen: CollectionConfig = {
       return Boolean(user?.role === 'admin')
     },
   },
+  hooks: {
+    afterChange: [
+      async ({ doc }) => {
+        if (doc._status !== 'published') return
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001'
+        const secret = process.env.REVALIDATION_SECRET || ''
+        try {
+          await fetch(
+            `${frontendUrl}/api/revalidate?secret=${secret}&tag=referenzen`,
+            { method: 'GET' },
+          )
+        } catch {
+          // Fehler beim Revalidieren nicht werfen
+        }
+      },
+    ],
+  },
   versions: {
     drafts: true,
   },

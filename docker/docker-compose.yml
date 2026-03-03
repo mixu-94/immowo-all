@@ -12,5 +12,36 @@ services:
     volumes:
       - payload_pg_data:/var/lib/postgresql/data
 
+  matomo:
+    image: matomo:latest
+    container_name: matomo
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - matomo_data:/var/www/html
+    environment:
+      MATOMO_DATABASE_HOST: matomo-db
+      MATOMO_DATABASE_ADAPTER: mysql
+      MATOMO_DATABASE_DBNAME: matomo
+      MATOMO_DATABASE_USERNAME: matomo
+      MATOMO_DATABASE_PASSWORD: matomo_password
+    depends_on:
+      - matomo-db
+
+  matomo-db:
+    image: mariadb:10.11
+    container_name: matomo-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: matomo_root_dev
+      MYSQL_DATABASE: matomo
+      MYSQL_USER: matomo
+      MYSQL_PASSWORD: matomo_password
+    volumes:
+      - matomo_db_data:/var/lib/mysql
+
 volumes:
   payload_pg_data:
+  matomo_data:
+  matomo_db_data:

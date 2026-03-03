@@ -55,7 +55,7 @@ function Navbar({}: NavbarProps) {
       initial={{ y: 0 }}
       animate={{ y: isVisible ? 0 : -120 }}
       transition={{ ease: "easeOut", duration: 0.5 }}
-      className="fixed left-0 top-0 z-50 w-full border-b border-white/10 bg-[#050B1A]/30 backdrop-blur-xl"
+      className="fixed left-0 top-0 z-50 w-full border-b border-[color:var(--color-border)] bg-[#050B1A]/30 backdrop-blur-xl"
     >
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-6">
         {/* Left Section - Logo */}
@@ -86,7 +86,7 @@ function Navbar({}: NavbarProps) {
                     key={item.href}
                     className="cursor-not-allowed opacity-50"
                   >
-                    <span className="text-sm font-medium tracking-wide text-white/70">
+                    <span className="text-sm font-medium tracking-wide text-[color:var(--color-text-muted)]">
                       {item.label}
                     </span>
                   </div>
@@ -114,8 +114,8 @@ function Navbar({}: NavbarProps) {
                     className={[
                       "text-base font-semibold tracking-[0.14em] uppercase transition-colors duration-300",
                       isActive
-                        ? "text-white"
-                        : "text-white/85 group-hover:text-white",
+                        ? "text-[color:var(--color-text)]"
+                        : "text-[color:var(--color-text-muted)] group-hover:text-white",
                     ].join(" ")}
                   >
                     {item.label}
@@ -140,7 +140,7 @@ function Navbar({}: NavbarProps) {
             whileTap={{ scale: 0.95 }}
             onClick={toggleMenu}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
-            className="flex items-center justify-center gap-2 rounded-full bg-white/10 px-4 py-3 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/15"
+            className="flex items-center justify-center gap-2 rounded-full bg-white/10 px-4 py-3 text-sm font-semibold text-[color:var(--color-text)] backdrop-blur transition hover:bg-white/15"
           >
             <span className="inline-block h-2 w-2 rounded-full bg-white/80" />
             <span>{menuOpen ? "Close" : "Menu"}</span>
@@ -179,7 +179,7 @@ function Navbar({}: NavbarProps) {
               whileHover={{ scale: 1.08 }}
               whileTap={{ scale: 0.95 }}
               onClick={toggleMenu}
-              className="flex items-center justify-center gap-2 rounded-full bg-white/10 px-4 py-3 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/15"
+              className="flex items-center justify-center gap-2 rounded-full bg-white/10 px-4 py-3 text-sm font-semibold text-[color:var(--color-text)] backdrop-blur transition hover:bg-white/15"
             >
               <span className="inline-block h-2 w-2 rounded-full bg-white/80" />
               <span>Close</span>
@@ -197,7 +197,7 @@ function Navbar({}: NavbarProps) {
                   return (
                     <div
                       key={item.href}
-                      className="cursor-not-allowed text-lg font-semibold text-white/40"
+                      className="cursor-not-allowed text-lg font-semibold text-[color:var(--color-text-muted)] opacity-50"
                     >
                       {item.label}
                     </div>
@@ -223,8 +223,8 @@ function Navbar({}: NavbarProps) {
                       className={[
                         "text-xl font-semibold tracking-[0.14em] uppercase transition-colors duration-300",
                         isActive
-                          ? "text-white"
-                          : "text-white/85 group-hover:text-white",
+                          ? "text-[color:var(--color-text)]"
+                          : "text-[color:var(--color-text-muted)] group-hover:text-white",
                       ].join(" ")}
                     >
                       {item.label}

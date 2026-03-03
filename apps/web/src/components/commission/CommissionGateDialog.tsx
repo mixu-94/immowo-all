@@ -75,10 +75,10 @@ export function CommissionGateDialog({
           {/* LEFT: Content */}
           <div className="min-h-0 overflow-y-auto px-5 pb-6 pt-5 sm:px-7 sm:pt-6">
             <DialogHeader className="space-y-2">
-              <DialogTitle className="text-lg font-semibold tracking-tight text-white sm:text-xl">
+              <DialogTitle className="text-lg font-semibold tracking-tight text-[color:var(--color-text)] sm:text-xl">
                 Hinweis zur Käuferprovision
               </DialogTitle>
-              <DialogDescription className="text-sm leading-relaxed text-white/70">
+              <DialogDescription className="text-sm leading-relaxed text-[color:var(--color-text-muted)]">
                 Bevor Sie die Objektseite aufrufen, bestätigen Sie bitte, dass
                 Sie den Hinweis zur Käuferprovision zur Kenntnis genommen haben.
               </DialogDescription>
@@ -86,39 +86,39 @@ export function CommissionGateDialog({
 
             {/* Key info */}
             <div className="mt-5 rounded-[var(--radius-lg)] border border-[rgba(214,181,109,0.22)] bg-[rgba(255,255,255,0.06)] p-4 sm:p-5 backdrop-blur">
-              <div className="text-[11px] font-semibold uppercase tracking-widest text-white/60">
+              <div className="text-[11px] font-semibold uppercase tracking-widest text-[color:var(--color-text-muted)]">
                 Käuferprovision (falls Kauf zustande kommt)
               </div>
 
-              <div className="mt-1 text-base font-semibold text-white sm:text-lg">
+              <div className="mt-1 text-base font-semibold text-[color:var(--color-text)] sm:text-lg">
                 {commissionText}
               </div>
 
-              <div className="mt-3 space-y-2 text-sm text-white/70">
+              <div className="mt-3 space-y-2 text-sm text-[color:var(--color-text-muted)]">
                 <p>
-                  <span className="font-semibold text-white">Fälligkeit:</span>{" "}
+                  <span className="font-semibold text-[color:var(--color-text)]">Fälligkeit:</span>{" "}
                   {commission?.due ??
                     "In der Regel fällig bei notarieller Beurkundung des Kaufvertrags."}
                 </p>
                 <p>
-                  <span className="font-semibold text-white">Hinweis:</span> Die
+                  <span className="font-semibold text-[color:var(--color-text)]">Hinweis:</span> Die
                   Provision wird grundsätzlich nur fällig, wenn ein wirksamer
                   Kaufvertrag zustande kommt und ein Provisionsanspruch besteht.
                 </p>
                 {commission?.basis ? (
                   <p>
-                    <span className="font-semibold text-white">
+                    <span className="font-semibold text-[color:var(--color-text)]">
                       Berechnungsbasis:
                     </span>{" "}
                     {commission.basis}
                   </p>
                 ) : null}
                 {commission?.note ? (
-                  <p className="text-white/65">{commission.note}</p>
+                  <p className="text-[color:var(--color-text-muted)]">{commission.note}</p>
                 ) : null}
               </div>
 
-              <div className="mt-4 rounded-2xl border border-[rgba(214,181,109,0.18)] bg-black/20 p-3 text-xs leading-relaxed text-white/65">
+              <div className="mt-4 rounded-2xl border border-[rgba(214,181,109,0.18)] bg-black/20 p-3 text-xs leading-relaxed text-[color:var(--color-text-muted)]">
                 Details finden Sie in unseren{" "}
                 <Link
                   href="/agb"
@@ -139,13 +139,13 @@ export function CommissionGateDialog({
 
             {/* Belehrung */}
             <div className="mt-4 rounded-[var(--radius-lg)] border border-[rgba(214,181,109,0.22)] bg-[rgba(255,255,255,0.06)] p-4 sm:p-5 backdrop-blur">
-              <p className="text-sm font-semibold text-white">
+              <p className="text-sm font-semibold text-[color:var(--color-text)]">
                 Wichtige Belehrung
               </p>
-              <ul className="mt-2 list-disc space-y-2 pl-5 text-sm leading-relaxed text-white/70">
+              <ul className="mt-2 list-disc space-y-2 pl-5 text-sm leading-relaxed text-[color:var(--color-text-muted)]">
                 <li>
                   Mit der Bestätigung erklären Sie{" "}
-                  <span className="font-semibold text-white">nicht</span>, dass
+                  <span className="font-semibold text-[color:var(--color-text)]">nicht</span>, dass
                   Sie die Immobilie kaufen – sondern nur, dass Sie den
                   Provisionshinweis gelesen haben.
                 </li>
@@ -166,10 +166,10 @@ export function CommissionGateDialog({
           <aside className="border-t border-[rgba(214,181,109,0.18)] bg-[color:var(--color-bg)]/95 p-5 backdrop-blur lg:border-l lg:border-t-0 sm:p-7">
             <div className="flex h-full flex-col">
               <div className="mb-4">
-                <div className="text-xs font-semibold uppercase tracking-widest text-white/60">
+                <div className="text-xs font-semibold uppercase tracking-widest text-[color:var(--color-text-muted)]">
                   Bestätigung
                 </div>
-                <div className="mt-2 text-sm leading-relaxed text-white/70">
+                <div className="mt-2 text-sm leading-relaxed text-[color:var(--color-text-muted)]">
                   Bitte bestätigen Sie den Provisionshinweis, um fortzufahren.
                 </div>
               </div>
@@ -191,11 +191,11 @@ export function CommissionGateDialog({
                     htmlFor="commission-ack"
                     className="cursor-pointer select-none"
                   >
-                    <div className="text-sm font-semibold text-white">
+                    <div className="text-sm font-semibold text-[color:var(--color-text)]">
                       Ich habe den Hinweis zur Käuferprovision gelesen und
                       verstanden.
                     </div>
-                    <div className="mt-1 text-xs text-white/70">
+                    <div className="mt-1 text-xs text-[color:var(--color-text-muted)]">
                       Pflichtfeld, um fortzufahren.
                     </div>
                   </label>
@@ -229,7 +229,7 @@ export function CommissionGateDialog({
             h-11
             border border-[rgba(214,181,109,0.22)]
             bg-[rgba(255,255,255,0.06)]
-            text-white/90
+            text-[color:var(--color-text)]
             hover:bg-[rgba(214,181,109,0.10)]
           "
                 >
@@ -237,7 +237,7 @@ export function CommissionGateDialog({
                 </Button>
               </div>
 
-              <p className="mt-auto pt-4 text-xs text-white/55">
+              <p className="mt-auto pt-4 text-xs text-[color:var(--color-text-muted)]">
                 Hinweis: Bestätigung betrifft nur den Provisionshinweis – kein
                 Kaufabschluss.
               </p>

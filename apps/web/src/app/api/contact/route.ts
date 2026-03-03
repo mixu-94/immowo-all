@@ -1,6 +1,7 @@
 // src/app/api/contact/route.ts
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { payloadCreate } from "@/lib/payloud";
 
 // Simple in-memory IP rate limiter (resets on server restart)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -167,6 +168,28 @@ export async function POST(req: Request) {
         const receivedAt = new Date().toISOString();
 
         const topicNice = topic ? topicLabel(topic) : "-";
+
+        // Persist to CMS (fire-and-forget — does not block email delivery)
+        payloadCreate("anfragen", {
+            name,
+            email,
+            phone: phone || undefined,
+            contactPreference: contactPreference ?? undefined,
+            topic: topic || "allgemein",
+            message: message || undefined,
+            callbackRequested,
+            preferredDate: preferredDate || undefined,
+            preferredTimeWindow: preferredTimeWindow || undefined,
+            preferredTime: preferredTime || undefined,
+            durationMinutes: durationMinutes || undefined,
+            listingTitle: listingTitle || undefined,
+            status: "neu",
+            receivedAt,
+            ipAddress: ip || undefined,
+            userAgent: ua || undefined,
+        }).catch((err: unknown) => {
+            console.warn("[contact] Anfrage konnte nicht in Payload gespeichert werden:", err);
+        });
 
         // Subject
         const subjectParts = ["Kontaktanfrage", name];

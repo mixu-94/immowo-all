@@ -2,6 +2,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ReferencesShell } from "./ReferencesShell";
+import { ShareBar } from "@/components/ui/ShareBar";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "";
 import type { Reference } from "@/lib/types/references";
 import {
   ArrowRight,
@@ -40,18 +43,18 @@ export function ReferenceDetail({ project }: Props) {
       <div className="mb-6 flex items-center justify-between gap-4">
         <Link
           href="/referenzen"
-          className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold tracking-widest text-white/80 backdrop-blur transition hover:bg-white/10"
+          className="inline-flex items-center gap-2 rounded-full border border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-4 py-2 text-xs font-semibold tracking-widest text-[color:var(--color-text-muted)] backdrop-blur transition hover:bg-[color:var(--color-surface-2)]"
         >
-          <span className="text-white/60">←</span> ZURÜCK ZU REFERENZEN
+          <span className="text-[color:var(--color-text-muted)]">←</span> ZURÜCK ZU REFERENZEN
         </Link>
 
-        <div className="hidden items-center gap-2 rounded-full border border-white/10 bg-black/20 px-4 py-2 text-xs font-semibold tracking-widest text-white/75 backdrop-blur md:inline-flex">
+        <div className="hidden items-center gap-2 rounded-full border border-[color:var(--color-border)] bg-black/20 px-4 py-2 text-xs font-semibold tracking-widest text-[color:var(--color-text-muted)] backdrop-blur md:inline-flex">
           <BadgeCheck className="h-4 w-4" />
           CASE STUDY
         </div>
       </div>
 
-      <article className="overflow-hidden rounded-[36px] border border-white/10 bg-white/5 backdrop-blur">
+      <article className="overflow-hidden rounded-[36px] border border-[color:var(--color-border)] bg-[color:var(--color-surface)] backdrop-blur">
         {/* HERO */}
         <header className="relative">
           <div className="relative h-[360px] w-full md:h-[520px]">
@@ -74,7 +77,7 @@ export function ReferenceDetail({ project }: Props) {
 
             {/* top-right status pill */}
             <div className="absolute right-5 top-5 z-10">
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold tracking-widest text-white/85 backdrop-blur">
+              <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--color-border-strong)] bg-[color:var(--color-surface-2)] px-4 py-2 text-xs font-semibold tracking-widest text-[color:var(--color-text)] backdrop-blur">
                 <ShieldCheck className="h-4 w-4" />
                 {statusLabel}
               </span>
@@ -96,12 +99,12 @@ export function ReferenceDetail({ project }: Props) {
                 ) : null}
               </div>
 
-              <h1 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-white md:text-5xl [text-shadow:0_10px_40px_rgba(0,0,0,0.55)]">
+              <h1 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-[color:var(--color-text)] md:text-5xl [text-shadow:0_10px_40px_rgba(0,0,0,0.55)]">
                 {project.title}
               </h1>
 
               {project.subtitle ? (
-                <p className="mt-3 max-w-3xl text-pretty text-sm leading-relaxed text-white/75 md:text-base">
+                <p className="mt-3 max-w-3xl text-pretty text-sm leading-relaxed text-[color:var(--color-text-muted)] md:text-base">
                   {project.subtitle}
                 </p>
               ) : null}
@@ -111,7 +114,7 @@ export function ReferenceDetail({ project }: Props) {
                 {project.highlights.slice(0, 10).map((h) => (
                   <span
                     key={h}
-                    className="rounded-full border border-white/10 bg-black/25 px-3 py-1.5 text-xs font-semibold text-white/75 backdrop-blur"
+                    className="rounded-full border border-[color:var(--color-border)] bg-black/25 px-3 py-1.5 text-xs font-semibold text-[color:var(--color-text-muted)] backdrop-blur"
                   >
                     {h}
                   </span>
@@ -131,7 +134,7 @@ export function ReferenceDetail({ project }: Props) {
                 [-webkit-mask-image:linear-gradient(to_bottom,transparent,black_45%,black)]
               "
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-[#050B1A]" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-[color:var(--color-bg)]" />
           </div>
         </header>
 
@@ -145,7 +148,7 @@ export function ReferenceDetail({ project }: Props) {
               title="Projektüberblick"
               subtitle="Kurz und klar – worum ging es bei diesem Projekt?"
             >
-              <p className="text-sm leading-relaxed text-white/80 md:text-base">
+              <p className="text-sm leading-relaxed text-[color:var(--color-text-muted)] md:text-base">
                 {project.description}
               </p>
             </Section>
@@ -157,21 +160,21 @@ export function ReferenceDetail({ project }: Props) {
               <div className="grid gap-4 md:grid-cols-3">
                 {project.caseStudy?.challenge ? (
                   <MiniCard
-                    icon={<Landmark className="h-5 w-5 text-white/80" />}
+                    icon={<Landmark className="h-5 w-5 text-[color:var(--color-text-muted)]" />}
                     title="Ausgangslage"
                     text={project.caseStudy.challenge}
                   />
                 ) : null}
                 {project.caseStudy?.approach ? (
                   <MiniCard
-                    icon={<Wrench className="h-5 w-5 text-white/80" />}
+                    icon={<Wrench className="h-5 w-5 text-[color:var(--color-text-muted)]" />}
                     title="Vorgehen"
                     text={project.caseStudy.approach}
                   />
                 ) : null}
                 {project.caseStudy?.result ? (
                   <MiniCard
-                    icon={<BadgeCheck className="h-5 w-5 text-white/80" />}
+                    icon={<BadgeCheck className="h-5 w-5 text-[color:var(--color-text-muted)]" />}
                     title="Ergebnis"
                     text={project.caseStudy.result}
                   />
@@ -190,12 +193,12 @@ export function ReferenceDetail({ project }: Props) {
                   {project.sections.map((s) => (
                     <div
                       key={s.heading}
-                      className="rounded-3xl border border-white/10 bg-black/20 p-5"
+                      className="rounded-3xl border border-[color:var(--color-border)] bg-black/20 p-5"
                     >
-                      <div className="text-sm font-semibold text-white/90">
+                      <div className="text-sm font-semibold text-[color:var(--color-text)]">
                         {s.heading}
                       </div>
-                      <p className="mt-2 text-sm leading-relaxed text-white/75">
+                      <p className="mt-2 text-sm leading-relaxed text-[color:var(--color-text-muted)]">
                         {s.content}
                       </p>
                     </div>
@@ -215,9 +218,9 @@ export function ReferenceDetail({ project }: Props) {
                   {project.services.map((s) => (
                     <span
                       key={s}
-                      className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white/80"
+                      className="inline-flex items-center gap-2 rounded-full border border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-3 py-2 text-xs font-semibold text-[color:var(--color-text-muted)]"
                     >
-                      <Wrench className="h-4 w-4 text-white/55" />
+                      <Wrench className="h-4 w-4 text-[color:var(--color-text-muted)]" />
                       {s}
                     </span>
                   ))}
@@ -236,16 +239,16 @@ export function ReferenceDetail({ project }: Props) {
                   {project.timeline.map((t, idx) => (
                     <li
                       key={`${t.title}-${idx}`}
-                      className="flex gap-3 rounded-3xl border border-white/10 bg-black/20 p-5"
+                      className="flex gap-3 rounded-3xl border border-[color:var(--color-border)] bg-black/20 p-5"
                     >
                       <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-black">
                         <span className="text-xs font-bold">{idx + 1}</span>
                       </div>
                       <div>
-                        <div className="text-sm font-semibold text-white/90">
+                        <div className="text-sm font-semibold text-[color:var(--color-text)]">
                           {t.title}
                         </div>
-                        <div className="mt-1 text-sm text-white/70">
+                        <div className="mt-1 text-sm text-[color:var(--color-text-muted)]">
                           {t.text}
                         </div>
                       </div>
@@ -269,7 +272,7 @@ export function ReferenceDetail({ project }: Props) {
                     .map((m, i) => (
                       <div
                         key={`${m.type}-${m.src}-${i}`}
-                        className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-white/10"
+                        className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-[color:var(--color-border)]"
                       >
                         <Image
                           src={m.src}
@@ -287,16 +290,16 @@ export function ReferenceDetail({ project }: Props) {
 
             {/* Testimonial */}
             {project.testimonial?.quote ? (
-              <section className="rounded-[36px] border border-white/10 bg-black/20 p-6">
-                <div className="flex items-center gap-2 text-sm font-semibold text-white/85">
-                  <Quote className="h-5 w-5 text-white/75" />
+              <section className="rounded-[36px] border border-[color:var(--color-border)] bg-black/20 p-6">
+                <div className="flex items-center gap-2 text-sm font-semibold text-[color:var(--color-text)]">
+                  <Quote className="h-5 w-5 text-[color:var(--color-text-muted)]" />
                   Stimme zum Projekt
                 </div>
-                <p className="mt-4 text-sm leading-relaxed text-white/80 md:text-base">
+                <p className="mt-4 text-sm leading-relaxed text-[color:var(--color-text-muted)] md:text-base">
                   “{project.testimonial.quote}”
                 </p>
                 {project.testimonial.author || project.testimonial.role ? (
-                  <div className="mt-3 text-xs font-semibold tracking-widest text-white/55">
+                  <div className="mt-3 text-xs font-semibold tracking-widest text-[color:var(--color-text-muted)]">
                     {project.testimonial.author ?? "—"}
                     {project.testimonial.role
                       ? ` • ${project.testimonial.role}`
@@ -311,21 +314,21 @@ export function ReferenceDetail({ project }: Props) {
           <aside className="space-y-4 md:sticky md:top-6 md:self-start">
             {/* KPIs */}
             {project.kpis?.length ? (
-              <div className="rounded-[36px] border border-white/10 bg-black/20 p-6">
-                <div className="flex items-center gap-2 text-sm font-semibold text-white/90">
-                  <ShieldCheck className="h-5 w-5 text-white/75" />
+              <div className="rounded-[36px] border border-[color:var(--color-border)] bg-black/20 p-6">
+                <div className="flex items-center gap-2 text-sm font-semibold text-[color:var(--color-text)]">
+                  <ShieldCheck className="h-5 w-5 text-[color:var(--color-text-muted)]" />
                   Kennzahlen
                 </div>
                 <div className="mt-4 grid grid-cols-2 gap-3">
                   {project.kpis.slice(0, 8).map((k) => (
                     <div
                       key={k.label}
-                      className="rounded-2xl border border-white/10 bg-white/5 p-3"
+                      className="rounded-2xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] p-3"
                     >
-                      <div className="text-[11px] font-semibold uppercase tracking-widest text-white/55">
+                      <div className="text-[11px] font-semibold uppercase tracking-widest text-[color:var(--color-text-muted)]">
                         {k.label}
                       </div>
-                      <div className="mt-1 text-sm font-semibold text-white/90">
+                      <div className="mt-1 text-sm font-semibold text-[color:var(--color-text)]">
                         {k.value}
                       </div>
                     </div>
@@ -336,9 +339,9 @@ export function ReferenceDetail({ project }: Props) {
 
             {/* Facts */}
             {project.facts ? (
-              <div className="rounded-[36px] border border-white/10 bg-black/20 p-6">
-                <div className="flex items-center gap-2 text-sm font-semibold text-white/90">
-                  <Home className="h-5 w-5 text-white/75" />
+              <div className="rounded-[36px] border border-[color:var(--color-border)] bg-black/20 p-6">
+                <div className="flex items-center gap-2 text-sm font-semibold text-[color:var(--color-text)]">
+                  <Home className="h-5 w-5 text-[color:var(--color-text-muted)]" />
                   Fakten
                 </div>
                 <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
@@ -389,9 +392,9 @@ export function ReferenceDetail({ project }: Props) {
             ) : null}
 
             {/* Documents */}
-            <div className="rounded-[36px] border border-white/10 bg-black/20 p-6">
-              <div className="flex items-center gap-2 text-sm font-semibold text-white/90">
-                <FileText className="h-5 w-5 text-white/75" />
+            <div className="rounded-[36px] border border-[color:var(--color-border)] bg-black/20 p-6">
+              <div className="flex items-center gap-2 text-sm font-semibold text-[color:var(--color-text)]">
+                <FileText className="h-5 w-5 text-[color:var(--color-text-muted)]" />
                 Unterlagen
               </div>
 
@@ -421,24 +424,24 @@ export function ReferenceDetail({ project }: Props) {
                 </Link>
               )}
 
-              <p className="mt-3 text-xs text-white/50">
+              <p className="mt-3 text-xs text-[color:var(--color-text-muted)]">
                 Hinweis: Referenzen sind teils anonymisiert (Region/Typ), um
                 Privatsphäre zu wahren.
               </p>
             </div>
 
             {/* CTA */}
-            <div className="rounded-[36px] border border-white/10 bg-white/5 p-6 backdrop-blur">
-              <div className="text-sm font-semibold text-white">
+            <div className="rounded-[36px] border border-[color:var(--color-border)] bg-[color:var(--color-surface)] p-6 backdrop-blur">
+              <div className="text-sm font-semibold text-[color:var(--color-text)]">
                 Ähnliches Projekt geplant?
               </div>
-              <p className="mt-2 text-sm leading-relaxed text-white/70">
+              <p className="mt-2 text-sm leading-relaxed text-[color:var(--color-text-muted)]">
                 Sprechen wir über Ziel, Budget und Zeitplan. Wir melden uns
                 zeitnah mit einem konkreten nächsten Schritt.
               </p>
               <Link
                 href="/kontakt"
-                className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-2xl border border-white/15 bg-white/5 px-4 text-sm font-semibold text-white/90 backdrop-blur transition hover:bg-white/10"
+                className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-2xl border border-[color:var(--color-border-strong)] bg-[color:var(--color-surface)] px-4 text-sm font-semibold text-[color:var(--color-text)] backdrop-blur transition hover:bg-[color:var(--color-surface-2)]"
               >
                 Kontakt aufnehmen <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
@@ -446,6 +449,16 @@ export function ReferenceDetail({ project }: Props) {
           </aside>
         </div>
       </article>
+      {/* Share Buttons */}
+      <div className="mx-auto max-w-7xl px-6 pb-10">
+        <div className="flex items-center gap-3 rounded-2xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] p-4">
+          <span className="text-sm text-[color:var(--color-text-muted)]">Referenz teilen:</span>
+          <ShareBar
+            url={`${SITE_URL}/referenzen/${project.slug}`}
+            title={project.title}
+          />
+        </div>
+      </div>
     </ReferencesShell>
   );
 }
@@ -462,15 +475,15 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-[36px] border border-white/10 bg-black/20 p-6">
+    <section className="rounded-[36px] border border-[color:var(--color-border)] bg-black/20 p-6">
       <div className="flex items-start gap-3">
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-2">
+        <div className="rounded-2xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] p-2">
           {icon}
         </div>
         <div className="min-w-0">
-          <div className="text-base font-semibold text-white">{title}</div>
+          <div className="text-base font-semibold text-[color:var(--color-text)]">{title}</div>
           {subtitle ? (
-            <div className="mt-1 text-sm text-white/60">{subtitle}</div>
+            <div className="mt-1 text-sm text-[color:var(--color-text-muted)]">{subtitle}</div>
           ) : null}
         </div>
       </div>
@@ -481,7 +494,7 @@ function Section({
 
 function Pill({ icon, text }: { icon: React.ReactNode; text: string }) {
   return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold tracking-widest text-white/85 backdrop-blur">
+    <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--color-border-strong)] bg-[color:var(--color-surface-2)] px-3 py-1 text-xs font-semibold tracking-widest text-[color:var(--color-text)] backdrop-blur">
       {icon}
       {text}
     </span>
@@ -498,12 +511,12 @@ function MiniCard({
   text: string;
 }) {
   return (
-    <div className="rounded-[28px] border border-white/10 bg-black/20 p-5">
-      <div className="flex items-center gap-2 text-sm font-semibold text-white/90">
+    <div className="rounded-[28px] border border-[color:var(--color-border)] bg-black/20 p-5">
+      <div className="flex items-center gap-2 text-sm font-semibold text-[color:var(--color-text)]">
         {icon}
         {title}
       </div>
-      <p className="mt-3 text-sm leading-relaxed text-white/70">{text}</p>
+      <p className="mt-3 text-sm leading-relaxed text-[color:var(--color-text-muted)]">{text}</p>
     </div>
   );
 }
@@ -518,24 +531,24 @@ function Fact({
   value: string;
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-      <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-white/55">
-        <span className="text-white/60">{icon}</span>
+    <div className="rounded-2xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] p-3">
+      <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-[color:var(--color-text-muted)]">
+        <span className="text-[color:var(--color-text-muted)]">{icon}</span>
         {label}
       </div>
-      <div className="mt-1 text-sm font-semibold text-white/90">{value}</div>
+      <div className="mt-1 text-sm font-semibold text-[color:var(--color-text)]">{value}</div>
     </div>
   );
 }
 
 function DocRow({ title, available }: { title: string; available: boolean }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/5 p-4">
-      <div className="flex items-center gap-2 text-sm font-semibold text-white/85">
-        <Lock className="h-4 w-4 text-white/60" />
+    <div className="flex items-center justify-between gap-3 rounded-2xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] p-4">
+      <div className="flex items-center gap-2 text-sm font-semibold text-[color:var(--color-text)]">
+        <Lock className="h-4 w-4 text-[color:var(--color-text-muted)]" />
         {title}
       </div>
-      <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-[11px] font-semibold tracking-widest text-white/70">
+      <span className="rounded-full border border-[color:var(--color-border)] bg-black/20 px-3 py-1 text-[11px] font-semibold tracking-widest text-[color:var(--color-text-muted)]">
         {available ? "DOWNLOAD" : "AUF ANFRAGE"}
       </span>
     </div>

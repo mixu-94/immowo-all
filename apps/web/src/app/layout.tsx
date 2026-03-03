@@ -4,6 +4,7 @@ import { ConsentProvider } from "@/components/consent/ConsentProvider";
 import CookieBanner from "@/components/consent/CookieBanner";
 import { Navbar } from "@/components/base/nav/Navbar";
 import Footer from "@/components/base/footer/Footer";
+import { MatomoScript } from "@/components/analytics/MatomoScript";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://immowo-ventures.de";
 
@@ -108,19 +109,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="de" className="">
-      <ConsentProvider>
-        <CookieBanner />
-        <Navbar />
-        <body className="antialiased mt-14 bg-[#050B1A]">
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-          />
+    <html lang="de">
+      <body className="antialiased mt-14 bg-[color:var(--color-bg)]">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <ConsentProvider>
+          <CookieBanner />
+          <Navbar />
           {children}
-        </body>
-        <Footer />
-      </ConsentProvider>
+          <Footer />
+          <MatomoScript />
+        </ConsentProvider>
+      </body>
     </html>
   );
 }

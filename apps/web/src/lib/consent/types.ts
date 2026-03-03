@@ -20,7 +20,7 @@ export const DEFAULT_CONSENT_STATE: ConsentState = {
     updatedAt: new Date(0).toISOString(), // will be overwritten on first save
 };
 
-export const CONSENT_STORAGE_KEY = "adaki.consent";
+export const CONSENT_STORAGE_KEY = "immowo.consent";
 
 /** Convenience helpers */
 export const acceptAll = (): ConsentState => ({

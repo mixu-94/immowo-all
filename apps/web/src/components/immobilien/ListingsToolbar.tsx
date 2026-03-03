@@ -197,7 +197,7 @@ function FilterSelect({
         className={fieldBase}
       >
         {options.map(([v, t]) => (
-          <option key={v} value={v} className="bg-[#061523] text-white">
+          <option key={v} value={v} className="bg-[color:var(--color-bg)] text-[color:var(--color-text)]">
             {t}
           </option>
         ))}

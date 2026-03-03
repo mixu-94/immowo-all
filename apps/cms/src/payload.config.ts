@@ -10,6 +10,8 @@ import { Media } from './collections/Media'
 import { Immobilien } from './collections/Immobilien'
 import { Referenzen } from './collections/Referenzen'
 import { Makler } from './collections/Makler'
+import { Anfragen } from './collections/Anfragen'
+import { Termine } from './collections/Termine'
 
 import { Home } from './globals/Home'
 import { Unternehmen } from './globals/Unternehmen'
@@ -25,19 +27,29 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export default buildConfig({
+  cors: [
+    process.env.PAYLOAD_CORS_ORIGIN || 'http://localhost:3001',
+    'http://localhost:3001',
+  ],
   admin: {
     user: Users.slug,
     meta: {
-      titleSuffix: '• Admin',
+      titleSuffix: '\u2022 Immowo Admin',
+      favicon: '/favicon.ico',
     },
+    css: path.resolve(dirname, 'styles/admin.css'),
     importMap: {
       baseDir: path.resolve(dirname),
     },
     components: {
+      graphics: {
+        Logo: '@/components/payload-admin/Logo',
+        Icon: '@/components/payload-admin/Icon',
+      },
       beforeDashboard: ['@/components/payload-admin/BeforeDashboard'],
     },
   },
-  collections: [Users, Media, Immobilien, Referenzen, Makler],
+  collections: [Users, Media, Immobilien, Referenzen, Makler, Anfragen, Termine],
   globals: [SiteSettings, Home, Unternehmen, Impressum, Datenschutz, AGB, Widerruf, Cookies],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

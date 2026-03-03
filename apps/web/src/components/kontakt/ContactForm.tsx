@@ -373,7 +373,7 @@ function Select({
           disabled={disabled}
         >
           {options.map((o) => (
-            <option key={o.value} value={o.value} className="bg-[#0f1623] text-white">
+            <option key={o.value} value={o.value} className="bg-[color:var(--color-bg)] text-[color:var(--color-text)]">
               {o.label}
             </option>
           ))}

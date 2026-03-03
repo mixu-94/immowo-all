@@ -3,7 +3,7 @@ import { ArrowRight, Home, Search, PhoneCall } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#050B1A] text-white">
+    <main className="relative min-h-screen overflow-hidden bg-[color:var(--color-bg)] text-[color:var(--color-text)]">
       {/* Navy background glow */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-b from-[#050B1A] via-[#060F2A] to-[#050B1A]" />

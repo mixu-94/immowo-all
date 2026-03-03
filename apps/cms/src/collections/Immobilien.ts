@@ -58,6 +58,24 @@ export const Immobilien: CollectionConfig = {
       return Boolean(user?.role === 'admin')
     },
   },
+  hooks: {
+    afterChange: [
+      async ({ doc }) => {
+        // Nur bei Publish revalidieren
+        if (doc._status !== 'published') return
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001'
+        const secret = process.env.REVALIDATION_SECRET || ''
+        try {
+          await fetch(
+            `${frontendUrl}/api/revalidate?secret=${secret}&tag=immobilien`,
+            { method: 'GET' },
+          )
+        } catch {
+          // Fehler beim Revalidieren nicht werfen — CMS-Operation soll nicht scheitern
+        }
+      },
+    ],
+  },
   versions: {
     drafts: true,
   },
