@@ -3,10 +3,17 @@ import { LegalPage } from "@/components/Legals/LegalPage";
 
 export const metadata: Metadata = {
   title: "AGB",
+  description:
+    "Allgemeine Gesch\u00e4ftsbedingungen der Immowo Ventures GmbH f\u00fcr die Nutzung der Website und Online-Dienste.",
+  openGraph: {
+    title: "AGB | Immowo Ventures",
+    description:
+      "Allgemeine Gesch\u00e4ftsbedingungen der Immowo Ventures GmbH.",
+  },
+  robots: { index: false, follow: false },
 };
 
 export default function AGBPage() {
-  let index;
   return (
     <LegalPage
       title="Allgemeine Geschäftsbedingungen (AGB)"
@@ -47,7 +54,7 @@ export default function AGBPage() {
           <p className="mt-3 text-sm leading-relaxed text-white/70">
             AGB sind vorformulierte Vertragsbedingungen; entscheidend ist, dass
             sie wirksam einbezogen werden und keine unzulässigen Klauseln
-            enthalten. :contentReference[oaicite:2]{(index = 2)}
+            enthalten.
           </p>
         </section>
 
@@ -73,7 +80,7 @@ export default function AGBPage() {
           <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-4 text-sm text-white/70">
             Vergleichbare Immobilienportale regeln in ihren Bedingungen
             typischerweise Vertragsgegenstand, Nutzungsrechte, Verfügbarkeit und
-            Haftung. :contentReference[oaicite:3]{(index = 3)}
+            Haftung.
           </div>
         </section>
 
@@ -106,7 +113,6 @@ export default function AGBPage() {
           <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-4 text-sm text-white/70">
             Hinweis: Für werbliche E-Mails ist in der Regel eine ausdrückliche
             Einwilligung sinnvoll (siehe Ziffer 6 und Datenschutzerklärung).
-            :contentReference[oaicite:4]{(index = 4)}
           </div>
         </section>
 
@@ -140,7 +146,6 @@ export default function AGBPage() {
             Hintergrund: Manche Makler-AGB knüpfen einen Vertrag an die
             Exposé-Anforderung – das ist ein anderes Modell und sollte nur
             genutzt werden, wenn ihr das wirklich so wollt.
-            :contentReference[oaicite:5]{(index = 5)}
           </div>
         </section>
 
@@ -172,7 +177,6 @@ export default function AGBPage() {
             Hinweis: Fehlerhafte Exposé-Angaben können rechtliche Risiken
             auslösen; deshalb ist die klare Abgrenzung von Fremdinformationen
             und die Empfehlung zur Eigenprüfung üblich.
-            :contentReference[oaicite:6]{(index = 6)}
           </div>
         </section>
 
@@ -200,8 +204,7 @@ export default function AGBPage() {
 
           <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-4 text-sm text-white/70">
             Plattform-AGB regeln typischerweise auch Verfügbarkeit,
-            Kommunikation und Nutzerpflichten. :contentReference[oaicite:7]
-            {(index = 7)}
+            Kommunikation und Nutzerpflichten.
           </div>
         </section>
 
@@ -238,7 +241,7 @@ export default function AGBPage() {
 
           <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-4 text-sm text-white/70">
             Regelungen zur Verfügbarkeit und Haftungsbegrenzung sind für
-            Plattform-AGB typisch. :contentReference[oaicite:8]{(index = 8)}
+            Plattform-AGB typisch.
           </div>
         </section>
 
@@ -269,7 +272,6 @@ export default function AGBPage() {
           <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-4 text-sm text-white/70">
             Bei Objekt-/Exposé-Angaben ist die klare Haftungsabgrenzung gängige
             Praxis, weil Informationen oft von Dritten stammen.
-            :contentReference[oaicite:9]{(index = 9)}
           </div>
         </section>
 
@@ -288,7 +290,7 @@ export default function AGBPage() {
           <p className="mt-3 text-sm leading-relaxed text-white/70">
             Klauseln zu Drittinhalten/Links sind in Muster-AGB üblich, sollten
             aber nicht als „Freifahrtschein“ verstanden werden (Prüfpflichten im
-            Einzelfall). :contentReference[oaicite:10]{(index = 10)}
+            Einzelfall).
           </p>
         </section>
 
@@ -361,7 +363,6 @@ export default function AGBPage() {
           <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-4 text-sm text-white/70">
             Hinweis: Muster/Generatoren können helfen, aber AGB sollten immer
             auf das konkrete Geschäftsmodell zugeschnitten sein.
-            :contentReference[oaicite:11]{(index = 11)}
           </div>
         </section>
 

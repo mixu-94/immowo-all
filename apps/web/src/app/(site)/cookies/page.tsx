@@ -3,6 +3,13 @@ import { LegalPage } from "@/components/Legals/LegalPage";
 
 export const metadata: Metadata = {
   title: "Cookies",
+  description:
+    "Cookie-Richtlinien der Immowo Ventures GmbH: Informationen zum Einsatz von Cookies und \u00e4hnlichen Technologien.",
+  openGraph: {
+    title: "Cookie-Richtlinien | Immowo Ventures",
+    description: "Informationen zum Einsatz von Cookies bei Immowo Ventures.",
+  },
+  robots: { index: false, follow: false },
 };
 
 export default function CookiesPage() {

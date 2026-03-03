@@ -2,6 +2,23 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 
+// Simple in-memory IP rate limiter (resets on server restart)
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
+const RATE_LIMIT_MAX = 5; // max 5 requests per minute per IP
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || entry.resetAt <= now) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return false;
+  }
+  if (entry.count >= RATE_LIMIT_MAX) return true;
+  entry.count++;
+  return false;
+}
+
 export const runtime = "nodejs";
 
 type Payload = {
@@ -74,6 +91,16 @@ function topicLabel(topic: string) {
 
 export async function POST(req: Request) {
     try {
+        // Rate limit check
+        const fwdHeader = req.headers.get("x-forwarded-for") ?? "";
+        const clientIp = fwdHeader.split(",")[0]?.trim() || "unknown";
+        if (isRateLimited(clientIp)) {
+            return NextResponse.json(
+                { ok: false, error: "Zu viele Anfragen. Bitte warten Sie einen Moment." },
+                { status: 429 }
+            );
+        }
+
         const body = (await req.json()) as Partial<Payload>;
 
         // Honeypot

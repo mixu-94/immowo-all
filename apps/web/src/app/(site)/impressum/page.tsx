@@ -3,6 +3,13 @@ import { LegalPage } from "@/components/Legals/LegalPage";
 
 export const metadata: Metadata = {
   title: "Impressum",
+  description:
+    "Impressum der Immowo Ventures GmbH gem\u00e4\u00df \u00a7 5 TMG. Angaben zum Unternehmen, Gesch\u00e4ftsf\u00fchrer und Kontakt.",
+  openGraph: {
+    title: "Impressum | Immowo Ventures",
+    description: "Rechtliche Angaben gem\u00e4\u00df \u00a7 5 TMG.",
+  },
+  robots: { index: false, follow: false },
 };
 
 export default function ImpressumPage() {

@@ -3,6 +3,13 @@ import { LegalPage } from "@/components/Legals/LegalPage";
 
 export const metadata: Metadata = {
   title: "Widerrufsrecht",
+  description:
+    "Widerrufsbelehrung und Muster-Widerrufsformular der Immowo Ventures GmbH gem\u00e4\u00df \u00a7 312g BGB.",
+  openGraph: {
+    title: "Widerrufsrecht | Immowo Ventures",
+    description: "Widerrufsbelehrung der Immowo Ventures GmbH.",
+  },
+  robots: { index: false, follow: false },
 };
 
 export default function WiderrufPage() {
