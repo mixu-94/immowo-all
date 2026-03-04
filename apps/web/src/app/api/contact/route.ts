@@ -1,7 +1,7 @@
 // src/app/api/contact/route.ts
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
-import { payloadCreate } from "@/lib/payloud";
+import { payloadCreate, payloadFind } from "@/lib/payloud";
 
 // Simple in-memory IP rate limiter (resets on server restart)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -161,6 +161,23 @@ export async function POST(req: Request) {
             );
         }
 
+        // Auto-assign: look up listing's ansprechpartner as default assignedMakler
+        let assignedMaklerId: number | undefined = undefined;
+        if (listing) {
+            try {
+                const result = await payloadFind<{ id: number; ansprechpartner?: number | { id: number } }>(
+                    "immobilien",
+                    { where: { slug: { equals: listing } }, limit: 1, depth: 0 },
+                );
+                const ap = result.docs[0]?.ansprechpartner;
+                if (ap != null) {
+                    assignedMaklerId = typeof ap === "object" ? Number(ap.id) : Number(ap);
+                }
+            } catch {
+                // proceed without assignment if lookup fails
+            }
+        }
+
         // Meta
         const ua = req.headers.get("user-agent") ?? "";
         const fwd = req.headers.get("x-forwarded-for") ?? "";
@@ -183,6 +200,7 @@ export async function POST(req: Request) {
             preferredTime: preferredTime || undefined,
             durationMinutes: durationMinutes || undefined,
             listingTitle: listingTitle || undefined,
+            assignedMakler: assignedMaklerId || undefined,
             status: "neu",
             receivedAt,
             ipAddress: ip || undefined,

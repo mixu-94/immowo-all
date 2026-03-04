@@ -36,17 +36,13 @@ export const Anfragen: CollectionConfig = {
     read: ({ req }) => {
       const user = getUser(req.user)
       if (!user) return false
-      if (user.role === 'admin' || user.role === 'editor') return true
-      if (user.role === 'makler') {
-        const mid = getMaklerProfileId(user)
-        if (!mid) return false
-        return { assignedMakler: { equals: mid } }
-      }
-      return false
+      // All authenticated roles see all Anfragen (team can cover for each other)
+      return user.role === 'admin' || user.role === 'editor' || user.role === 'makler'
     },
     update: ({ req }) => {
       const user = getUser(req.user)
-      return Boolean(user?.role === 'admin' || user?.role === 'editor')
+      // Makler can update (change status, take over, add notes) — not just admin/editor
+      return Boolean(user?.role === 'admin' || user?.role === 'editor' || user?.role === 'makler')
     },
     delete: ({ req }) => {
       return Boolean(getUser(req.user)?.role === 'admin')
