@@ -27,13 +27,31 @@ Monorepo with two apps:
 apps/
 ├── web/src/
 │   ├── app/(site)/          # All public routes
-│   ├── components/          # UI components
+│   │   ├── page.tsx         # Home
+│   │   ├── immobilien/      # Listings list + filters
+│   │   ├── objekte/[slug]/  # Listing detail
+│   │   ├── referenzen/      # References list + detail
+│   │   ├── unternehmen/     # Company page
+│   │   ├── kontakt/         # Contact page
+│   │   ├── bewertung/       # Immobilienbewertung (new)
+│   │   ├── agb/             # AGB (CMS-connected)
+│   │   ├── datenschutz/     # Datenschutz (CMS-connected)
+│   │   ├── impressum/       # Impressum (CMS-connected)
+│   │   ├── widerruf/        # Widerruf (CMS-connected)
+│   │   └── cookies/         # Cookie-Richtlinie (CMS-connected)
+│   ├── components/
+│   │   ├── base/            # Navbar, Footer, etc.
+│   │   ├── bewertung/       # BewertungForm.tsx (new)
+│   │   ├── kontakt/         # ContactForm.tsx, ContactPeople.tsx
+│   │   ├── objekte/         # ObjectDetailPage, Finanzierungsrechner.tsx (new)
+│   │   ├── legal/           # RichTextRenderer.tsx, LegalPage.tsx
+│   │   └── ui/              # WhatsAppButton.tsx (new), ShareBar.tsx, etc.
 │   ├── lib/
-│   │   ├── cms/             # CMS fetchers (home.ts, companyPage.ts) — currently returning fallback data
-│   │   ├── data/            # listings.ts, references.ts — to be migrated to Payload
+│   │   ├── cms/             # CMS fetchers: home.ts, companyPage.ts, siteSettings.ts, legalPages.ts
+│   │   ├── data/            # listings.ts, references.ts, makler.ts — all Payload-connected
 │   │   ├── types/           # listings.ts, references.ts (TypeScript types)
 │   │   ├── seo/             # SEO metadata helpers
-│   │   └── payloud.ts       # HTTP fetch helper for Payload REST API (NOTE: file is named payloud.ts with typo — keep it)
+│   │   └── payloud.ts       # HTTP fetch helper for Payload REST API (NOTE: intentional typo — keep it)
 │   └── styles/
 │       ├── globals.css      # Design tokens (primary — use these)
 │       └── globals2.css     # Extended tokens
@@ -41,24 +59,28 @@ apps/
 │   ├── collections/
 │   │   ├── Immobilien.ts    # Main listings collection (fully built)
 │   │   ├── Makler.ts        # Ansprechpartner/Makler collection
+│   │   ├── Anfragen.ts      # CRM: contact form requests (new)
+│   │   ├── Termine.ts       # CRM: appointments / calendar source (new)
 │   │   ├── Media.ts
 │   │   └── Users.ts         # Auth collection (roles: admin, editor, makler)
 │   ├── globals/
 │   │   ├── Home.ts          # Home page content global
 │   │   ├── Unternehmen.ts   # Company page global
 │   │   ├── SiteSettings.ts  # Footer, socials, contact info
-│   │   ├── Impressum.ts
-│   │   ├── Datenschutz.ts
+│   │   ├── Impressum.ts     # Structured tabs (Firmendaten, Kontakt, Register, Erlaubnis)
+│   │   ├── Datenschutz.ts   # With dpo group (name, email, phone)
 │   │   ├── AGB.ts
 │   │   ├── Widerruf.ts
 │   │   └── Cookies.ts
 │   ├── components/
-│   │   └── payload-admin/BeforeDashboard.tsx  # Custom dashboard (role-aware)
-│   ├── access/              # Access control functions (inline in collections)
-│   ├── hooks/               # Payload lifecycle hooks (inline in fields)
+│   │   └── payload-admin/
+│   │       ├── BeforeDashboard.tsx  # Role-aware dashboard (KPIs, Anfragen widget, calendar)
+│   │       ├── BeforeLogin.tsx      # Custom admin login screen (new)
+│   │       └── MaklerKalender.tsx   # Full month-view calendar (gold dots, click dropdown)
 │   ├── seed/
 │   │   ├── seed.ts          # Main seed script (immobilien data)
-│   │   └── makler-seed.ts   # Makler profiles + user accounts seed
+│   │   ├── makler-seed.ts   # Makler profiles + user accounts seed
+│   │   └── legal-seed.ts    # Legal globals seed (executed — full German content)
 │   └── payload.config.ts    # Main config (PostgreSQL + Lexical)
 ```
 
@@ -126,11 +148,17 @@ bg-[color:var(--color-accent)] hover:bg-[color:var(--color-accent-hover)]
 |---|---|
 | `/` | `app/(site)/page.tsx` |
 | `/immobilien` | listings list + filters |
-| `/objekte/[slug]` | listing detail |
+| `/objekte/[slug]` | listing detail (with Finanzierungsrechner) |
 | `/referenzen` | references list |
 | `/referenzen/[slug]` | reference detail |
 | `/unternehmen` | company page |
 | `/kontakt` | contact (API: `api/contact/route.ts`) |
+| `/bewertung` | Immobilienbewertung form (new) |
+| `/impressum` | CMS-connected, structured tabs |
+| `/datenschutz` | CMS-connected, DPO card |
+| `/agb` | CMS-connected |
+| `/widerruf` | CMS-connected |
+| `/cookies` | CMS-connected |
 
 ---
 
@@ -140,14 +168,18 @@ bg-[color:var(--color-accent)] hover:bg-[color:var(--color-accent-hover)]
 - `Immobilien` collection — fully modelled + connected (`lib/data/listings.ts`)
 - `Makler` collection — Ansprechpartner, shown on `/objekte/[slug]` + `/kontakt`
 - `Referenzen` collection — fully connected (`lib/data/references.ts`)
+- `Anfragen` collection — CRM: contact requests, tabs layout, Makler-scoped access
+- `Termine` collection — CRM: appointments, calendar source, Makler-scoped access
 - `Home` global — connected (`lib/cms/home.ts`)
 - `Unternehmen` global — connected (`lib/cms/companyPage.ts`)
-- `SiteSettings` global
-- Legal globals (Impressum, Datenschutz, AGB, Widerruf, Cookies)
+- `SiteSettings` global — connected (`lib/cms/siteSettings.ts`)
+- Legal globals — all seeded + connected (`lib/cms/legalPages.ts`): Impressum, Datenschutz (with DPO), AGB, Widerruf, Cookies
 
 ### All fetchers use Payload with static fallback:
 - `fetchHomeContent()` → `payloadGlobal('home')` → fallback: DEFAULT_HOME_CONTENT
 - `fetchCompanyPageContent()` → `payloadGlobal('unternehmen')` → fallback: DEFAULT_COMPANY_PAGE_CONTENT
+- `fetchSiteSettings()` → `payloadGlobal('siteSettings')` → fallback: DEFAULT_SITE_SETTINGS
+- `fetchImpressum/Datenschutz/Agb/Widerruf/Cookies()` → legal globals → fallback included
 - `getListings()` / `getListingBySlug()` → `payloadFind('immobilien')` → fallback: static estates
 - `getReferences()` / `getReferenceBySlug()` → `payloadFind('referenzen')` → fallback: static refs
 - `getMakler()` → `payloadFind('makler')` → fallback: 2 hardcoded placeholder persons
@@ -159,6 +191,11 @@ Provides: `payloadFetch`, `payloadFind`, `payloadFindByID`, `payloadGlobal`, `pa
 PAYLOAD_BASE_URL=http://localhost:3000
 PAYLOAD_API_KEY=   # optional Bearer token
 ```
+
+### Contact API (`api/contact/route.ts`):
+- IP-based rate limiting (5 req/min)
+- Fire-and-forget `payloadCreate('anfragen', ...)` → saves to CMS
+- SMTP email via nodemailer
 
 ---
 
@@ -178,7 +215,9 @@ PAYLOAD_API_KEY=   # optional Bearer token
 
 ### Dashboard:
 - `BeforeDashboard.tsx` uses `useAuth()` to detect role
-- Makler sees: personalized welcome + same KPI stats + calendar teaser placeholder
+- Makler sees: personalized welcome + KPI stats + Anfragen widget (last 5) + full MaklerKalender
+- `MaklerKalender.tsx` — full month-view calendar, gold dots per Termin status, click dropdown
+- `BeforeLogin.tsx` — custom branded admin login screen
 
 ### Fallback behavior:
 - If no `ansprechpartner` set on listing → `/objekte/[slug]` shows "Immowo Ventures" generic info
@@ -286,11 +325,35 @@ if (context.skipHooks) return
 ## Known Quirks
 
 - `payloud.ts` — intentional typo in filename, keep it consistent in all imports
-- `layosut.tsx` in `app/(site)/` — typo in filename, keep imports consistent
 - `vermarktungsStatus` — NOT `status` (Payload reserves `_status` for draft/publish workflow)
 - Payload returns string IDs — always map `id` as `string`
 - `slug` is required for all detail pages — no fallback is safe
 - The Immobilien collection uses `versions: { drafts: true }` — public fetch must filter for published
+- Never write fancy typographic quotes (`„"`) in new `.ts` files — causes TS encoding errors on Windows. Use `\u201e` / `\u201c` escape sequences or regular ASCII quotes
+- Tailwind opacity with CSS vars: `[color:var(--color-accent)]/40` does NOT work. Use inline style with rgba — gold RGB is `214,181,109`
+- CMS `.next/trace` gets locked on Windows → `rm -f apps/cms/.next/trace` before restart
+- Payload dev mode uses interactive schema wizard for column changes — bypass by using `psql` directly to `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`
+- Migrations: keep `export const migrations = [];` in index.ts (we use dev-mode schema push)
+
+## New Components (added in go-live phases)
+
+| Component | Path | Description |
+|---|---|---|
+| `BewertungForm` | `components/bewertung/BewertungForm.tsx` | Multi-step property valuation form |
+| `Finanzierungsrechner` | `components/objekte/Finanzierungsrechner.tsx` | Mortgage calculator, integrated in ObjectDetailPage |
+| `WhatsAppButton` | `components/ui/WhatsAppButton.tsx` | Floating WhatsApp CTA |
+| `ShareBar` | `components/ui/ShareBar.tsx` | Social share (WhatsApp, FB, LinkedIn, Telegram, Copy) |
+| `RichTextRenderer` | `components/legal/RichTextRenderer.tsx` | Lexical richtext renderer for legal pages |
+| `MatomoScript` | `components/analytics/MatomoScript.tsx` | DSGVO-compliant analytics, reads `useConsent()` |
+
+## Analytics — Matomo
+
+- Matomo running on `http://localhost:8080` (docker: `compose up -d matomo matomo-db`)
+- `MatomoScript.tsx` only loads tracker when `analyticsAllowed` (ConsentContext)
+- ENV: `NEXT_PUBLIC_MATOMO_URL` + `NEXT_PUBLIC_MATOMO_SITE_ID=1`
+- DSGVO config: IP anonymized (last 2 bytes), DoNotTrack respected, logs deleted after 180 days
+- Setup script: `docker/matomo-setup.sh` (idempotent)
+- Config template: `docker/matomo-config.ini.template`
 
 ---
 
