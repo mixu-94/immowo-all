@@ -29,6 +29,11 @@ const staticRoutes: MetadataRoute.Sitemap = [
     changeFrequency: "monthly" as const,
   },
   {
+    url: `${BASE_URL}/bewertung`,
+    priority: 0.8,
+    changeFrequency: "monthly" as const,
+  },
+  {
     url: `${BASE_URL}/impressum`,
     priority: 0.3,
     changeFrequency: "yearly" as const,

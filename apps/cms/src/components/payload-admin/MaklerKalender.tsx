@@ -1,298 +1,393 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import FullCalendar from '@fullcalendar/react'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import timeGridPlugin from '@fullcalendar/timegrid'
+import interactionPlugin from '@fullcalendar/interaction'
+import listPlugin from '@fullcalendar/list'
+import deLocale from '@fullcalendar/core/locales/de'
+import type { DatesSetArg, EventClickArg, EventInput } from '@fullcalendar/core'
 import { useAuth } from '@payloadcms/ui'
 
-type Termin = {
-  id: string | number
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type TerminDoc = {
+  id: number | string
   date: string
-  startTime: string
-  durationMinutes: number
-  customerName: string
-  customerEmail: string
-  status: string
-  makler?: string | number | { id: string | number }
-  listing?: string | number | { id: string | number; title?: string }
+  startTime?: string
+  durationMinutes?: number
+  status?: 'geplant' | 'bestaetigt' | 'absolviert' | 'storniert'
+  customerName?: string
+  makler?: { id: number | string; name?: string } | number | string | null
 }
 
-const WEEKDAYS = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
+type FilterMode = 'all' | 'own'
 
-const MONTH_NAMES = [
-  'Januar', 'Februar', 'M\u00e4rz', 'April', 'Mai', 'Juni',
-  'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
-]
+// ─── Status colors ────────────────────────────────────────────────────────────
 
-function statusLabel(s: string) {
-  switch (s) {
-    case 'geplant': return 'Geplant'
-    case 'bestaetigt': return 'Best\u00e4tigt'
-    case 'absolviert': return 'Absolviert'
-    case 'storniert': return 'Storniert'
-    default: return s
+const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
+  geplant:    { bg: '#D6B56D', text: '#0A0F1E' },
+  bestaetigt: { bg: '#34D399', text: '#0A0F1E' },
+  absolviert: { bg: '#64748B', text: '#ffffff' },
+  storniert:  { bg: '#F87171', text: '#ffffff' },
+}
+
+const STATUS_LABELS: Record<string, string> = {
+  geplant:    'Geplant',
+  bestaetigt: 'Best\u00e4tigt',
+  absolviert: 'Absolviert',
+  storniert:  'Storniert',
+}
+
+// ─── Convert Termin to FullCalendar EventInput ────────────────────────────────
+
+function terminToEvent(t: TerminDoc, ownMaklerId: string | null): EventInput {
+  const dateStr = t.date ? t.date.split('T')[0] : ''
+  const time = t.startTime ?? '09:00'
+  const start = dateStr ? `${dateStr}T${time}` : dateStr
+
+  const durationMs = (t.durationMinutes ?? 30) * 60 * 1000
+  const endDate = start
+    ? new Date(new Date(start).getTime() + durationMs).toISOString()
+    : undefined
+
+  const s = t.status ?? 'geplant'
+  const colors = STATUS_COLORS[s] ?? STATUS_COLORS.geplant
+
+  const maklerId =
+    t.makler == null
+      ? null
+      : typeof t.makler === 'object' && 'id' in t.makler
+        ? String((t.makler as { id: number | string }).id)
+        : String(t.makler)
+
+  const maklerName =
+    t.makler != null && typeof t.makler === 'object' && 'name' in t.makler
+      ? (t.makler as { name?: string }).name ?? null
+      : null
+
+  return {
+    id: String(t.id),
+    title: t.customerName ?? 'Termin',
+    start,
+    end: endDate,
+    backgroundColor: colors.bg,
+    borderColor: colors.bg,
+    textColor: colors.text,
+    extendedProps: {
+      status: s,
+      maklerName,
+      maklerId,
+      time,
+      isOwn: ownMaklerId != null && maklerId === ownMaklerId,
+    },
   }
 }
 
-function statusColor(s: string) {
-  switch (s) {
-    case 'bestaetigt': return 'rgba(52,211,153,0.85)'
-    case 'absolviert': return 'rgba(148,163,184,0.85)'
-    case 'storniert': return 'rgba(248,113,113,0.85)'
-    default: return 'rgba(214,181,109,0.9)' // geplant = gold
-  }
+// ─── Inject dark-theme CSS once ───────────────────────────────────────────────
+
+const CALENDAR_CSS = `
+.imw-fc .fc {
+  --fc-border-color: rgba(255,255,255,0.10);
+  --fc-button-bg-color: rgba(255,255,255,0.06);
+  --fc-button-border-color: rgba(255,255,255,0.14);
+  --fc-button-hover-bg-color: rgba(255,255,255,0.10);
+  --fc-button-hover-border-color: rgba(255,255,255,0.22);
+  --fc-button-active-bg-color: rgba(214,181,109,0.20);
+  --fc-button-active-border-color: rgba(214,181,109,0.50);
+  --fc-button-text-color: rgba(255,255,255,0.80);
+  --fc-today-bg-color: rgba(214,181,109,0.07);
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: rgba(255,255,255,0.03);
+  --fc-list-event-hover-bg-color: rgba(255,255,255,0.06);
+  font-family: inherit;
+}
+.imw-fc .fc-theme-standard td,
+.imw-fc .fc-theme-standard th,
+.imw-fc .fc-theme-standard .fc-scrollgrid { border-color: rgba(255,255,255,0.08); }
+.imw-fc .fc-col-header-cell-cushion,
+.imw-fc .fc-daygrid-day-number,
+.imw-fc .fc-list-event-title,
+.imw-fc .fc-list-event-time,
+.imw-fc .fc-list-day-text,
+.imw-fc .fc-list-day-side-text { color: rgba(255,255,255,0.70); text-decoration: none; }
+.imw-fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number { color: #D6B56D; font-weight: 700; }
+.imw-fc .fc-button { text-transform: capitalize; font-size: 0.78rem; padding: 3px 10px; border-radius: 6px; font-weight: 500; }
+.imw-fc .fc-button-primary:not(:disabled).fc-button-active,
+.imw-fc .fc-button-primary:not(:disabled):active { background-color: rgba(214,181,109,0.20) !important; border-color: rgba(214,181,109,0.45) !important; color: #D6B56D !important; }
+.imw-fc .fc-toolbar-title { font-size: 0.95rem; font-weight: 600; color: rgba(255,255,255,0.88); }
+.imw-fc .fc-daygrid-day-number { font-size: 0.78rem; padding: 4px 6px; }
+.imw-fc .fc-event { cursor: pointer; border-radius: 4px; font-size: 0.72rem; padding: 1px 4px; }
+.imw-fc .fc-event:hover { filter: brightness(1.1); }
+.imw-fc .fc-timegrid-slot { height: 2em; }
+.imw-fc .fc-timegrid-axis, .imw-fc .fc-timegrid-slot-label { color: rgba(255,255,255,0.40); font-size: 0.72rem; }
+.imw-fc .fc-list-event td { border-color: rgba(255,255,255,0.05); }
+.imw-fc .fc-list-day-cushion { background: rgba(255,255,255,0.04); }
+.imw-fc .fc-direction-ltr .fc-list-day-side-text { color: rgba(214,181,109,0.80); }
+.imw-fc .fc-more-link { color: rgba(214,181,109,0.80); font-size: 0.68rem; }
+`
+
+function injectCalendarCss() {
+  if (typeof document === 'undefined') return
+  if (document.getElementById('imw-fc-css')) return
+  const style = document.createElement('style')
+  style.id = 'imw-fc-css'
+  style.textContent = CALENDAR_CSS
+  document.head.appendChild(style)
 }
 
-function isoDate(year: number, month: number, day: number) {
-  return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-}
-
-function parseLocalDate(isoStr: string) {
-  // Payload stores dates as ISO strings — parse just the date part
-  return isoStr.slice(0, 10)
-}
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function MaklerKalender() {
   const { user } = useAuth()
-  const now = new Date()
-  const [month, setMonth] = useState(now.getMonth())
-  const [year, setYear] = useState(now.getFullYear())
-  const [termine, setTermine] = useState<Termin[]>([])
-  const [loading, setLoading] = useState(true)
-  const [selectedDay, setSelectedDay] = useState<string | null>(null)
-  const dropdownRef = useRef<HTMLDivElement>(null)
+  const calRef = useRef<FullCalendar>(null)
+  const mountedRef = useRef(true)
 
-  // Close dropdown on outside click
+  const [allEvents, setAllEvents] = useState<EventInput[]>([])
+  const [filterMode, setFilterMode] = useState<FilterMode>('all')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
   useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setSelectedDay(null)
-      }
-    }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
+    injectCalendarCss()
+    return () => { mountedRef.current = false }
   }, [])
 
+  // Resolve makler profile id for "own" filter
+  const ownMaklerId: string | null = (() => {
+    const mp = (user as any)?.maklerProfile
+    if (mp == null) return null
+    if (typeof mp === 'object') return mp.id != null ? String(mp.id) : null
+    return String(mp)
+  })()
+
+  const isMakler = (user as any)?.role === 'makler'
+
+  // Fetch Termine for visible date range
+  const fetchTermine = useCallback(
+    async (start: Date, end: Date) => {
+      if (!mountedRef.current) return
+      setLoading(true)
+      setError(null)
+      try {
+        const gte = start.toISOString().split('T')[0]
+        const lte = end.toISOString().split('T')[0]
+        const res = await fetch(
+          `/api/termine?where[date][greater_than_equal]=${gte}&where[date][less_than_equal]=${lte}&limit=500&sort=date&depth=1`,
+          { credentials: 'include' },
+        )
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        const json = await res.json()
+        if (!mountedRef.current) return
+        const docs: TerminDoc[] = json.docs ?? []
+        setAllEvents(docs.map((t) => terminToEvent(t, ownMaklerId)))
+      } catch {
+        if (mountedRef.current) setError('Termine konnten nicht geladen werden.')
+      } finally {
+        if (mountedRef.current) setLoading(false)
+      }
+    },
+    [ownMaklerId],
+  )
+
+  // Initial load
   useEffect(() => {
-    let mounted = true
-    setLoading(true)
-    setSelectedDay(null)
-
-    const firstDay = new Date(year, month, 1)
-    const lastDay = new Date(year, month + 1, 0)
-    const gte = firstDay.toISOString()
-    const lte = new Date(lastDay.getFullYear(), lastDay.getMonth(), lastDay.getDate(), 23, 59, 59).toISOString()
-
-    fetch(
-      `/api/termine?where[date][greater_than_equal]=${encodeURIComponent(gte)}&where[date][less_than_equal]=${encodeURIComponent(lte)}&limit=200&sort=date`,
-      { credentials: 'include' },
+    const now = new Date()
+    fetchTermine(
+      new Date(now.getFullYear(), now.getMonth() - 1, 1),
+      new Date(now.getFullYear(), now.getMonth() + 2, 0),
     )
-      .then((r) => r.json())
-      .then((data: { docs?: Termin[] }) => {
-        if (mounted) setTermine(data.docs ?? [])
-      })
-      .catch(() => {
-        if (mounted) setTermine([])
-      })
-      .finally(() => {
-        if (mounted) setLoading(false)
-      })
+  }, [fetchTermine])
 
-    return () => {
-      mounted = false
-    }
-  }, [month, year])
+  const handleDatesSet = useCallback(
+    (info: DatesSetArg) => { fetchTermine(info.start, info.end) },
+    [fetchTermine],
+  )
 
-  // Build calendar grid (Mo–So, 5 or 6 weeks)
-  const firstOfMonth = new Date(year, month, 1)
-  // getDay(): 0=Sun,1=Mon,...,6=Sat → convert to Mon-based index (0=Mon,...,6=Sun)
-  const startOffset = (firstOfMonth.getDay() + 6) % 7
-  const daysInMonth = new Date(year, month + 1, 0).getDate()
-  const totalCells = Math.ceil((startOffset + daysInMonth) / 7) * 7
+  const handleEventClick = useCallback((info: EventClickArg) => {
+    info.jsEvent.preventDefault()
+    window.location.href = `/admin/collections/termine/${info.event.id}`
+  }, [])
 
-  // Group termine by date string (YYYY-MM-DD)
-  const termineByDay: Record<string, Termin[]> = {}
-  for (const t of termine) {
-    const d = parseLocalDate(t.date)
-    if (!termineByDay[d]) termineByDay[d] = []
-    termineByDay[d].push(t)
-  }
+  // Apply own/all filter
+  const visibleEvents =
+    filterMode === 'own' && ownMaklerId
+      ? allEvents.filter((e) => (e as any).extendedProps?.isOwn)
+      : allEvents
 
-  const todayStr = isoDate(now.getFullYear(), now.getMonth(), now.getDate())
-
-  function prevMonth() {
-    if (month === 0) { setMonth(11); setYear(y => y - 1) }
-    else setMonth(m => m - 1)
-  }
-  function nextMonth() {
-    if (month === 11) { setMonth(0); setYear(y => y + 1) }
-    else setMonth(m => m + 1)
-  }
-
-  const selectedDayTermine = selectedDay ? (termineByDay[selectedDay] ?? []) : []
+  const ownCount = ownMaklerId
+    ? allEvents.filter((e) => (e as any).extendedProps?.isOwn).length
+    : 0
 
   return (
-    <div
-      className="rounded-2xl border p-5"
-      style={{ borderColor: 'rgba(214,181,109,0.20)', background: 'rgba(255,255,255,0.04)' }}
-    >
-      {/* Header */}
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={prevMonth}
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
-            aria-label="Vorheriger Monat"
-          >
-            ‹
-          </button>
-          <h3 className="text-sm font-semibold text-white">
-            {MONTH_NAMES[month]} {year}
-          </h3>
-          <button
-            type="button"
-            onClick={nextMonth}
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
-            aria-label="N\u00e4chster Monat"
-          >
-            ›
-          </button>
-        </div>
-        <div className="flex items-center gap-2">
-          {loading && (
-            <span className="text-[11px] text-white/40">L\u00e4dt…</span>
+    <div>
+      {/* Toolbar */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '8px',
+          marginBottom: '12px',
+        }}
+      >
+        {/* Filter buttons */}
+        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+          <FilterBtn active={filterMode === 'all'} onClick={() => setFilterMode('all')}>
+            Alle Makler
+          </FilterBtn>
+          {(isMakler || ownMaklerId) && (
+            <FilterBtn active={filterMode === 'own'} onClick={() => setFilterMode('own')}>
+              Nur meine{ownCount > 0 ? ` (${ownCount})` : ''}
+            </FilterBtn>
           )}
-          <a
-            href="/admin/collections/termine/create"
-            className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-semibold text-black transition hover:brightness-110"
-            style={{ background: 'var(--immowo-accent, #d6b56d)' }}
-          >
-            + Termin
-          </a>
+          {loading && (
+            <span style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.35)', marginLeft: '6px' }}>
+              L\u00e4dt\u2026
+            </span>
+          )}
+          {error && (
+            <span style={{ fontSize: '0.72rem', color: '#F87171' }}>{error}</span>
+          )}
         </div>
+
+        <a
+          href="/admin/collections/termine/create"
+          style={{
+            padding: '4px 12px',
+            borderRadius: '6px',
+            fontSize: '0.75rem',
+            fontWeight: 600,
+            border: '1px solid rgba(214,181,109,0.35)',
+            backgroundColor: 'rgba(214,181,109,0.10)',
+            color: '#D6B56D',
+            textDecoration: 'none',
+          }}
+        >
+          + Neuer Termin
+        </a>
       </div>
 
-      {/* Weekday headers */}
-      <div className="mb-1 grid grid-cols-7 gap-px">
-        {WEEKDAYS.map((d) => (
-          <div key={d} className="py-1 text-center text-[10px] font-semibold uppercase tracking-widest text-white/40">
-            {d}
-          </div>
-        ))}
-      </div>
-
-      {/* Calendar grid */}
-      <div className="relative grid grid-cols-7 gap-px" ref={dropdownRef}>
-        {Array.from({ length: totalCells }).map((_, i) => {
-          const dayNum = i - startOffset + 1
-          const isCurrentMonth = dayNum >= 1 && dayNum <= daysInMonth
-          if (!isCurrentMonth) {
-            return <div key={i} className="h-14 rounded-lg" />
-          }
-          const dateStr = isoDate(year, month, dayNum)
-          const dayTermine = termineByDay[dateStr] ?? []
-          const isToday = dateStr === todayStr
-          const isSelected = selectedDay === dateStr
-          const hasDots = dayTermine.length > 0
-
-          return (
-            <div
-              key={dateStr}
-              className="relative"
-            >
-              <button
-                type="button"
-                onClick={() => setSelectedDay(isSelected ? null : dateStr)}
-                className={[
-                  'flex h-14 w-full flex-col items-center justify-start rounded-lg border pt-1.5 text-[12px] font-semibold transition',
-                  isToday
-                    ? 'border-[rgba(214,181,109,0.50)] bg-[rgba(214,181,109,0.08)] text-white'
-                    : isSelected
-                    ? 'border-white/20 bg-white/10 text-white'
-                    : 'border-transparent bg-white/[0.02] text-white/70 hover:bg-white/[0.06] hover:text-white',
-                ].join(' ')}
-              >
-                <span>{dayNum}</span>
-                {hasDots && (
-                  <div className="mt-1 flex gap-0.5">
-                    {dayTermine.slice(0, 3).map((t) => (
-                      <span
-                        key={t.id}
-                        className="h-1.5 w-1.5 rounded-full"
-                        style={{ background: statusColor(t.status) }}
-                      />
-                    ))}
-                    {dayTermine.length > 3 && (
-                      <span className="text-[9px] leading-none text-white/50">+{dayTermine.length - 3}</span>
-                    )}
+      {/* Calendar */}
+      <div
+        className="imw-fc"
+        style={{
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: '10px',
+          padding: '12px 10px',
+          background: 'rgba(255,255,255,0.02)',
+        }}
+      >
+        <FullCalendar
+          ref={calRef}
+          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+          initialView="dayGridMonth"
+          locale={deLocale}
+          headerToolbar={{
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,listMonth',
+          }}
+          buttonText={{ today: 'Heute', month: 'Monat', week: 'Woche', list: 'Liste' }}
+          events={visibleEvents}
+          eventClick={handleEventClick}
+          datesSet={handleDatesSet}
+          height="auto"
+          firstDay={1}
+          nowIndicator
+          dayMaxEvents={3}
+          moreLinkText={(n) => `+${n}`}
+          noEventsText="Keine Termine"
+          eventTimeFormat={{ hour: '2-digit', minute: '2-digit', meridiem: false }}
+          eventContent={(info) => {
+            const { time, maklerName } = info.event.extendedProps as {
+              time: string
+              maklerName: string | null
+            }
+            return (
+              <div style={{ padding: '1px 3px', lineHeight: 1.25, overflow: 'hidden' }}>
+                <div
+                  style={{
+                    fontWeight: 600,
+                    fontSize: '0.70rem',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                >
+                  {time} {info.event.title}
+                </div>
+                {maklerName && (
+                  <div
+                    style={{
+                      fontSize: '0.62rem',
+                      opacity: 0.75,
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
+                    {maklerName}
                   </div>
                 )}
-              </button>
-
-              {/* Dropdown for selected day */}
-              {isSelected && (
-                <div
-                  className="absolute left-0 top-full z-50 mt-1 min-w-[220px] rounded-xl border border-white/15 p-3 shadow-2xl"
-                  style={{ background: 'rgba(10,20,40,0.97)', backdropFilter: 'blur(12px)' }}
-                >
-                  <div className="mb-2 text-[11px] font-semibold text-white/60">
-                    {new Intl.DateTimeFormat('de-DE', { dateStyle: 'long' }).format(new Date(year, month, dayNum))}
-                  </div>
-                  {selectedDayTermine.length === 0 ? (
-                    <p className="text-xs text-white/50">Keine Termine</p>
-                  ) : (
-                    <ul className="space-y-2">
-                      {selectedDayTermine.map((t) => (
-                        <li key={t.id}>
-                          <a
-                            href={`/admin/collections/termine/${t.id}`}
-                            className="block rounded-lg border border-white/8 bg-white/5 px-2.5 py-2 hover:bg-white/10"
-                          >
-                            <div className="flex items-center gap-1.5">
-                              <span
-                                className="h-1.5 w-1.5 shrink-0 rounded-full"
-                                style={{ background: statusColor(t.status) }}
-                              />
-                              <span className="text-[12px] font-semibold text-white">
-                                {t.startTime} — {t.customerName}
-                              </span>
-                            </div>
-                            <div className="mt-0.5 text-[11px] text-white/50">
-                              {statusLabel(t.status)} · {t.durationMinutes} Min.
-                            </div>
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  <a
-                    href={`/admin/collections/termine/create`}
-                    className="mt-2 block rounded-lg border border-white/10 px-2.5 py-1.5 text-center text-[11px] font-semibold text-white/70 hover:bg-white/8 hover:text-white"
-                  >
-                    + Termin hinzuf\u00fcgen
-                  </a>
-                </div>
-              )}
-            </div>
-          )
-        })}
+              </div>
+            )
+          }}
+        />
       </div>
 
       {/* Legend */}
-      <div className="mt-3 flex flex-wrap gap-3 border-t border-white/8 pt-3">
-        {[
-          { label: 'Geplant', color: 'rgba(214,181,109,0.9)' },
-          { label: 'Best\u00e4tigt', color: 'rgba(52,211,153,0.85)' },
-          { label: 'Storniert', color: 'rgba(248,113,113,0.85)' },
-        ].map(({ label, color }) => (
-          <span key={label} className="flex items-center gap-1.5 text-[11px] text-white/50">
-            <span className="h-2 w-2 rounded-full" style={{ background: color }} />
-            {label}
-          </span>
+      <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '10px' }}>
+        {Object.entries(STATUS_LABELS).map(([key, label]) => (
+          <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <div
+              style={{
+                width: '9px',
+                height: '9px',
+                borderRadius: '3px',
+                background: STATUS_COLORS[key]?.bg ?? '#888',
+                flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: '0.70rem', color: 'rgba(255,255,255,0.45)' }}>{label}</span>
+          </div>
         ))}
-        <span className="ml-auto text-[11px] text-white/30">
-          {termine.length > 0 ? `${termine.length} Termin${termine.length !== 1 ? 'e' : ''} im Monat` : ''}
-        </span>
       </div>
     </div>
+  )
+}
+
+// ─── Small helper component ───────────────────────────────────────────────────
+
+function FilterBtn({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean
+  onClick: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        padding: '3px 11px',
+        borderRadius: '6px',
+        fontSize: '0.75rem',
+        fontWeight: 500,
+        border: '1px solid',
+        cursor: 'pointer',
+        borderColor: active ? 'rgba(214,181,109,0.50)' : 'rgba(255,255,255,0.14)',
+        backgroundColor: active ? 'rgba(214,181,109,0.12)' : 'rgba(255,255,255,0.04)',
+        color: active ? '#D6B56D' : 'rgba(255,255,255,0.60)',
+        transition: 'all 0.12s',
+      }}
+    >
+      {children}
+    </button>
   )
 }

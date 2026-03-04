@@ -21,7 +21,7 @@ export default async function DatenschutzPage() {
   const hasDpo = data.dpo?.name || data.dpo?.email;
 
   return (
-    <LegalPage title="Datenschutzerkl\u00e4rung" lastUpdated="23.02.2026">
+    <LegalPage title="Datenschutzerklärung" lastUpdated="23.02.2026">
       {data.content ? (
         <RichTextRenderer content={data.content} />
       ) : (

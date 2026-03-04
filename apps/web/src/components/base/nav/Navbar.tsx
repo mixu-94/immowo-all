@@ -18,6 +18,7 @@ const navItems = [
     disabled: false,
     hidden: false,
   },
+  { label: "Bewertung", href: "/bewertung", disabled: false, hidden: false },
   { label: "Kontakt", href: "/kontakt", disabled: false, hidden: false },
 ];
 

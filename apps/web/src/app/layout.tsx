@@ -5,8 +5,10 @@ import CookieBanner from "@/components/consent/CookieBanner";
 import { Navbar } from "@/components/base/nav/Navbar";
 import Footer from "@/components/base/footer/Footer";
 import { MatomoScript } from "@/components/analytics/MatomoScript";
+import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://immowo-ventures.de";
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://immowo-ventures.de";
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -121,6 +123,7 @@ export default function RootLayout({
           {children}
           <Footer />
           <MatomoScript />
+          <WhatsAppButton />
         </ConsentProvider>
       </body>
     </html>

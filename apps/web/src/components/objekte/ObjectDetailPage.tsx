@@ -6,6 +6,7 @@ import { ObjectTrust } from "./ObjectTrust";
 import { ObjectCTA } from "./ObjectCTA";
 import { CommissionGateEnforcer } from "../commission/CommissionGateEnforcer";
 import { ShareBar } from "@/components/ui/ShareBar";
+import { Finanzierungsrechner } from "./Finanzierungsrechner";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "";
 
@@ -22,6 +23,12 @@ export function ObjectDetailPage({ listing }: { listing: EstateDetails }) {
       />
       <ObjectHero listing={listing} />
       <ObjectMain listing={listing} />
+      {/* Finanzierungsrechner */}
+      <section className="mx-auto w-full max-w-7xl px-6 pb-10">
+        <Finanzierungsrechner
+          initialPrice={(listing as any).pricing?.price ?? (listing as any).price ?? null}
+        />
+      </section>
       <ObjectTrust />
       <ObjectCTA listing={listing} />
       {/* Share Buttons */}

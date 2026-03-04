@@ -17,8 +17,8 @@ export async function ContactPeople() {
         </div>
         <h2 className="text-lg font-semibold text-[color:var(--color-text)]">Direkter Kontakt</h2>
         <p className="mt-2 text-sm leading-relaxed text-[color:var(--color-text-muted)]">
-          W\u00e4hlen Sie den passenden Ansprechpartner \u2013 oder senden Sie einfach das
-          Formular. Wir melden uns schnellstm\u00f6glich.
+          Wählen Sie den passenden Ansprechpartner – oder senden Sie einfach das
+          Formular. Wir melden uns schnellstmöglich.
         </p>
       </div>
 

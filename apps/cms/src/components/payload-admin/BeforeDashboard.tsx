@@ -120,6 +120,36 @@ export default function BeforeDashboard() {
 
   return (
     <section className="mb-6 space-y-4">
+      {/* Anfragen-Notification */}
+      {loading ? (
+        <div className="h-10 animate-pulse rounded-xl bg-white/[0.04]" />
+      ) : counts.neueAnfragen > 0 ? (
+        <Link
+          href="/admin/collections/anfragen?where[status][equals]=neu"
+          className="flex items-center justify-between gap-4 rounded-xl border px-5 py-3.5 transition hover:brightness-110"
+          style={{ borderColor: 'rgba(214,181,109,0.40)', background: 'rgba(214,181,109,0.07)' }}
+        >
+          <div className="flex items-center gap-3">
+            <span
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-bold"
+              style={{ background: 'rgba(214,181,109,0.18)', color: 'rgba(214,181,109,0.95)' }}
+            >
+              {counts.neueAnfragen}
+            </span>
+            <span className="text-sm font-semibold text-white">
+              {counts.neueAnfragen === 1 ? '1 neue Anfrage eingegangen' : `${counts.neueAnfragen} neue Anfragen eingegangen`}
+            </span>
+          </div>
+          <span className="shrink-0 text-xs font-semibold" style={{ color: 'rgba(214,181,109,0.85)' }}>
+            Jetzt ansehen \u2192
+          </span>
+        </Link>
+      ) : (
+        <div className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.06] px-4 py-2.5">
+          <span className="text-sm text-emerald-300/80">&#10003; Keine offenen Anfragen</span>
+        </div>
+      )}
+
       {/* Hero */}
       <div
         className="
@@ -188,20 +218,6 @@ export default function BeforeDashboard() {
         </div>
       </div>
 
-      {/* Kalender */}
-      <div>
-        <div className="mb-2 flex items-center justify-between">
-          <span className="text-xs font-semibold uppercase tracking-widest text-white/50">Kalender & Termine</span>
-          <Link
-            href="/admin/collections/termine"
-            className="text-xs font-semibold text-white/60 underline underline-offset-4 hover:text-white"
-          >
-            Alle Termine
-          </Link>
-        </div>
-        <MaklerKalender />
-      </div>
-
       {/* KPIs */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <KpiCard
@@ -232,6 +248,20 @@ export default function BeforeDashboard() {
           accent={counts.neueAnfragen > 0}
           href="/admin/collections/anfragen?where[status][equals]=neu"
         />
+      </div>
+
+      {/* Kalender */}
+      <div>
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-xs font-semibold uppercase tracking-widest text-white/50">Kalender & Termine</span>
+          <Link
+            href="/admin/collections/termine"
+            className="text-xs font-semibold text-white/60 underline underline-offset-4 hover:text-white"
+          >
+            Alle Termine
+          </Link>
+        </div>
+        <MaklerKalender />
       </div>
 
       {/* Anfragen-Widget */}

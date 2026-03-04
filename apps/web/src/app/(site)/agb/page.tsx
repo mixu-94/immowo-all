@@ -20,7 +20,7 @@ export default async function AGBPage() {
 
   return (
     <LegalPage
-      title="Allgemeine Gesch\u00e4ftsbedingungen (AGB)"
+      title="Allgemeine Geschäftsbedingungen (AGB)"
       lastUpdated="23.02.2026"
     >
       {data.content ? (
