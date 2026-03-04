@@ -26,7 +26,7 @@ export default async function DatenschutzPage() {
         <RichTextRenderer content={data.content} />
       ) : (
         <p className="text-[color:var(--color-text-muted)]">
-          Die Datenschutzerkl\u00e4rung wird gerade aktualisiert. Bitte kommen Sie sp\u00e4ter zur\u00fcck.
+          Die Datenschutzerklärung wird gerade aktualisiert. Bitte kommen Sie später zurück.
         </p>
       )}
 

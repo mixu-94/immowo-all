@@ -23,7 +23,7 @@ export default async function WiderrufPage() {
         <RichTextRenderer content={data.content} />
       ) : (
         <p className="text-[color:var(--color-text-muted)]">
-          Die Widerrufsbelehrung wird gerade aktualisiert. Bitte kommen Sie sp\u00e4ter zur\u00fcck.
+          Die Widerrufsbelehrung wird gerade aktualisiert. Bitte kommen Sie später zurück.
         </p>
       )}
     </LegalPage>

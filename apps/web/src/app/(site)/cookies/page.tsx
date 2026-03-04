@@ -23,7 +23,7 @@ export default async function CookiesPage() {
         <RichTextRenderer content={data.content} />
       ) : (
         <p className="text-[color:var(--color-text-muted)]">
-          Die Cookie-Richtlinien werden gerade aktualisiert. Bitte kommen Sie sp\u00e4ter zur\u00fcck.
+          Die Cookie-Richtlinien werden gerade aktualisiert. Bitte kommen Sie später zurück.
         </p>
       )}
     </LegalPage>

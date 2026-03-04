@@ -70,7 +70,7 @@ export default async function ImpressumPage() {
       <section className="space-y-6">
         {/* Angaben gemaess § 5 TMG */}
         <InfoCard>
-          <CardHeading>Angaben gem\u00e4\u00df \u00a7 5 TMG</CardHeading>
+          <CardHeading>Angaben gemäß § 5 TMG</CardHeading>
           <div className="grid gap-4 sm:grid-cols-2">
             {/* Adresse */}
             <div className="rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] p-5">
@@ -146,14 +146,14 @@ export default async function ImpressumPage() {
         {/* § 34c GewO Erlaubnis */}
         <InfoCard>
           <CardHeading>
-            Aufsichtsbeh\u00f6rde / Erlaubnis
-            <span className="ml-2 text-xs font-normal text-white/40">(\u00a7 34c GewO)</span>
+            Aufsichtsbehörde / Erlaubnis
+            <span className="ml-2 text-xs font-normal text-white/40">(§ 34c GewO)</span>
           </CardHeading>
           {data.gewo34cText ? (
             <p className="text-sm leading-relaxed text-[color:var(--color-text-muted)]">{data.gewo34cText}</p>
           ) : (
             <div className="rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] p-4 text-sm italic text-[color:var(--color-text-muted)] opacity-50">
-              Angaben zur Erlaubnis nach \u00a7 34c GewO bitte im CMS erg\u00e4nzen.
+              Angaben zur Erlaubnis nach § 34c GewO bitte im CMS ergänzen.
             </div>
           )}
         </InfoCard>

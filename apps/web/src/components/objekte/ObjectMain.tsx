@@ -504,7 +504,6 @@ function Step({ n, title, text }: { n: number; title: string; text: string }) {
 //     title,
 //   )}`;
 
-//   // TODO: später aus listing / payload ziehen
 //   const agent = {
 //     name: "Max Mustermann",
 //     role: "Immobilienberater • ArchiVend",

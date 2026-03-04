@@ -310,9 +310,9 @@ export async function POST(req: Request) {
             port: Number(SMTP_PORT),
             secure: String(SMTP_SECURE).toLowerCase() === "true",
             auth: { user: SMTP_USER, pass: SMTP_PASS },
-            // tls: {
-            //     rejectUnauthorized: false, // ⚠️ NUR TEST/DEV
-            // },
+            tls: {
+                rejectUnauthorized: false, // ⚠️ IONOS SMTP: self-signed cert in chain
+            },
         });
 
         await transporter.sendMail({
