@@ -24,6 +24,7 @@ import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0
 import { default as default_df24439fca1a4faa97076898b1657c0f } from '@/components/payload-admin/Icon'
 import { default as default_898e80f4b3ccf048f37d3e2d26b72edc } from '@/components/payload-admin/Logo'
 import { default as default_fbeed859f5af7cda0c440ccc4a84a368 } from '@/components/payload-admin/BeforeDashboard'
+import { default as default_255e3eae96f0c826ade7597ae9cebb0f } from '@/components/payload-admin/BeforeLogin'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 export const importMap = {
@@ -53,5 +54,6 @@ export const importMap = {
   "@/components/payload-admin/Icon#default": default_df24439fca1a4faa97076898b1657c0f,
   "@/components/payload-admin/Logo#default": default_898e80f4b3ccf048f37d3e2d26b72edc,
   "@/components/payload-admin/BeforeDashboard#default": default_fbeed859f5af7cda0c440ccc4a84a368,
+  "@/components/payload-admin/BeforeLogin#default": default_255e3eae96f0c826ade7597ae9cebb0f,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

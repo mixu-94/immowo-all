@@ -28,6 +28,7 @@ function safeDuration(v: FormDataEntryValue | null, fallback = 15) {
 export function ContactForm(props: ContactFormProps) {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState<DoneState>(null);
+  const [wantsTermin, setWantsTermin] = useState(false);
 
   const formRef = useRef<HTMLFormElement | null>(null);
   const params = useSearchParams();
@@ -63,10 +64,11 @@ export function ContactForm(props: ContactFormProps) {
     const listingTitleValue = String(form.get("listingTitle") ?? listingTitle).trim();
     const website = String(form.get("website") ?? "").trim();
 
-    if (!name || !email) { setLoading(false); setDone("Bitte Name und E-Mail ausfüllen."); return; }
-    if (!isValidEmail(email)) { setLoading(false); setDone("Bitte eine gültige E-Mail-Adresse angeben."); return; }
-    if (!message && !callbackRequested) { setLoading(false); setDone("Bitte Nachricht ausfüllen oder Rückruf anfragen."); return; }
-    if (callbackRequested && !phone) { setLoading(false); setDone("Für einen Rückruf bitte eine Telefonnummer angeben."); return; }
+    if (!name || !email) { setLoading(false); setDone("Bitte Name und E-Mail ausf\u00fcllen."); return; }
+    if (!isValidEmail(email)) { setLoading(false); setDone("Bitte eine g\u00fcltige E-Mail-Adresse angeben."); return; }
+    if (!message && !callbackRequested && !(wantsTermin && preferredDate)) { setLoading(false); setDone("Bitte Nachricht ausf\u00fcllen, R\u00fcckruf oder Telefontermin anfragen."); return; }
+    if (callbackRequested && !phone) { setLoading(false); setDone("F\u00fcr einen R\u00fcckruf bitte eine Telefonnummer angeben."); return; }
+    if (wantsTermin && !phone) { setLoading(false); setDone("F\u00fcr einen Telefontermin bitte Telefonnummer angeben."); return; }
 
     const payload = {
       name, email, phone, contactPreference, topic, message, callbackRequested,
@@ -84,7 +86,7 @@ export function ContactForm(props: ContactFormProps) {
       const data = (await res.json().catch(() => null)) as any;
       setLoading(false);
       if (!res.ok || !data?.ok) { setDone(data?.error ?? "Fehler beim Senden."); return; }
-      setDone("ok");
+      setDone(wantsTermin && preferredDate ? "termin" : "ok");
       formEl.reset();
     } catch {
       setLoading(false);
@@ -102,7 +104,7 @@ export function ContactForm(props: ContactFormProps) {
           KONTAKTFORMULAR
         </div>
         <h2 className="mt-2 text-xl font-semibold text-[color:var(--color-text)]">
-          Nachricht senden oder Rückruf anfragen
+          Nachricht senden, Rückruf oder Termin anfragen
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-[color:var(--color-text-muted)]">
           Hinterlassen Sie Ihre Daten – optional mit Terminwunsch. Wir melden
@@ -219,59 +221,77 @@ export function ContactForm(props: ContactFormProps) {
           </div>
         </div>
 
+        {/* Telefontermin-Toggle */}
+        <button
+          type="button"
+          disabled={loading}
+          onClick={() => setWantsTermin((v) => !v)}
+          className="flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-sm font-semibold transition disabled:opacity-60"
+          style={
+            wantsTermin
+              ? { background: 'rgba(214,181,109,0.13)', borderColor: 'rgba(214,181,109,0.45)', color: 'rgba(214,181,109,0.95)' }
+              : { background: 'rgba(214,181,109,0.06)', borderColor: 'rgba(214,181,109,0.35)', color: 'rgba(255,255,255,0.75)' }
+          }
+        >
+          <CalendarDays className="h-4 w-4 shrink-0" />
+          {wantsTermin ? 'Termin abw\u00e4hlen \u00d7' : 'Telefontermin anfragen'}
+        </button>
+
         {/* Terminwunsch */}
-        <div className="overflow-hidden rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface-2)]">
-          <div className="border-b border-[color:var(--color-border)] px-5 py-3">
-            <div className="text-sm font-semibold text-[color:var(--color-text)]">Terminwunsch</div>
-            <div className="mt-0.5 text-xs text-[color:var(--color-text-muted)]">
-              Wir bestätigen den Termin per E-Mail/Telefon.
+        {wantsTermin && (
+          <div className="overflow-hidden rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface-2)]">
+            <div className="border-b border-[color:var(--color-border)] px-5 py-3">
+              <div className="text-sm font-semibold text-[color:var(--color-text)]">Terminwunsch</div>
+              <div className="mt-0.5 text-xs text-[color:var(--color-text-muted)]">
+                Wir bestätigen den Termin per E-Mail/Telefon.
+              </div>
+            </div>
+            <div className="p-5">
+              <div className="grid gap-4 md:grid-cols-3">
+                <Field label="Datum" icon={<CalendarDays className="h-4 w-4 text-[color:var(--color-text-muted)]" />}>
+                  <input
+                    type="date" name="preferredDate" disabled={loading}
+                    className="w-full bg-transparent text-[color:var(--color-text)] outline-none disabled:opacity-70"
+                  />
+                </Field>
+                <Select
+                  name="preferredTimeWindow" label="Zeitfenster"
+                  icon={<Clock3 className="h-4 w-4 text-[color:var(--color-text-muted)]" />}
+                  options={[
+                    { value: "", label: "Bitte w\u00e4hlen" },
+                    { value: "09-12", label: "09:00 \u2013 12:00" },
+                    { value: "12-15", label: "12:00 \u2013 15:00" },
+                    { value: "15-18", label: "15:00 \u2013 18:00" },
+                    { value: "18-20", label: "18:00 \u2013 20:00" },
+                  ]}
+                  defaultValue="" disabled={loading}
+                />
+                <Select
+                  name="durationMinutes" label="Dauer"
+                  icon={<Timer className="h-4 w-4 text-[color:var(--color-text-muted)]" />}
+                  options={[
+                    { value: "15", label: "15 Min." },
+                    { value: "30", label: "30 Min." },
+                    { value: "45", label: "45 Min." },
+                    { value: "60", label: "60 Min." },
+                  ]}
+                  defaultValue="15" disabled={loading}
+                />
+              </div>
+              <div className="mt-4">
+                <Field label="Bevorzugte Uhrzeit (optional)" icon={<Clock3 className="h-4 w-4 text-[color:var(--color-text-muted)]" />}>
+                  <input
+                    type="time" name="preferredTime" disabled={loading}
+                    className="w-full bg-transparent text-[color:var(--color-text)] outline-none disabled:opacity-70"
+                  />
+                </Field>
+                <p className="mt-2 text-xs text-[color:var(--color-text-muted)]">
+                  Wenn möglich richten wir uns danach – ansonsten innerhalb Ihres Zeitfensters.
+                </p>
+              </div>
             </div>
           </div>
-          <div className="p-5">
-            <div className="grid gap-4 md:grid-cols-3">
-              <Field label="Datum" icon={<CalendarDays className="h-4 w-4 text-[color:var(--color-text-muted)]" />}>
-                <input
-                  type="date" name="preferredDate" disabled={loading}
-                  className="w-full bg-transparent text-[color:var(--color-text)] outline-none disabled:opacity-70"
-                />
-              </Field>
-              <Select
-                name="preferredTimeWindow" label="Zeitfenster"
-                icon={<Clock3 className="h-4 w-4 text-[color:var(--color-text-muted)]" />}
-                options={[
-                  { value: "", label: "Bitte wählen" },
-                  { value: "09-12", label: "09:00 – 12:00" },
-                  { value: "12-15", label: "12:00 – 15:00" },
-                  { value: "15-18", label: "15:00 – 18:00" },
-                  { value: "18-20", label: "18:00 – 20:00" },
-                ]}
-                defaultValue="" disabled={loading}
-              />
-              <Select
-                name="durationMinutes" label="Dauer"
-                icon={<Timer className="h-4 w-4 text-[color:var(--color-text-muted)]" />}
-                options={[
-                  { value: "15", label: "15 Min." },
-                  { value: "30", label: "30 Min." },
-                  { value: "45", label: "45 Min." },
-                  { value: "60", label: "60 Min." },
-                ]}
-                defaultValue="15" disabled={loading}
-              />
-            </div>
-            <div className="mt-4">
-              <Field label="Bevorzugte Uhrzeit (optional)" icon={<Clock3 className="h-4 w-4 text-[color:var(--color-text-muted)]" />}>
-                <input
-                  type="time" name="preferredTime" disabled={loading}
-                  className="w-full bg-transparent text-[color:var(--color-text)] outline-none disabled:opacity-70"
-                />
-              </Field>
-              <p className="mt-2 text-xs text-[color:var(--color-text-muted)]">
-                Wenn möglich richten wir uns danach – ansonsten innerhalb Ihres Zeitfensters.
-              </p>
-            </div>
-          </div>
-        </div>
+        )}
 
         {/* Nachricht */}
         <div>
@@ -312,14 +332,16 @@ export function ContactForm(props: ContactFormProps) {
           {loading ? "Senden…" : "Absenden"}
         </button>
 
-        {done === "ok" ? (
+        {done === "ok" || done === "termin" ? (
           <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-4 text-sm text-emerald-300">
             <div className="flex items-start gap-2">
               <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />
               <div>
                 <div className="font-semibold">Vielen Dank!</div>
                 <div className="mt-1 opacity-80">
-                  Ihre Anfrage ist eingegangen. Wir melden uns zeitnah bei Ihnen.
+                  {done === "termin"
+                    ? "Wir best\u00e4tigen Ihren Terminwunsch zeitnah per E-Mail."
+                    : "Ihre Anfrage ist eingegangen. Wir melden uns zeitnah bei Ihnen."}
                 </div>
               </div>
             </div>

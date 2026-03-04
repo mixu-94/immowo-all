@@ -523,9 +523,9 @@ export interface Termine {
   durationMinutes?: number | null;
   timezone?: string | null;
   /**
-   * Zuständiger Makler für diesen Termin
+   * Zuständiger Makler (wird automatisch gesetzt, wenn Anfrage übernommen wird)
    */
-  makler: number | Makler;
+  makler?: (number | null) | Makler;
   /**
    * Besichtigungsobjekt (falls zutreffend)
    */

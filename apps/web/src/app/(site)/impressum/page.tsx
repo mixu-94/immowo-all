@@ -70,7 +70,7 @@ export default async function ImpressumPage() {
       <section className="space-y-6">
         {/* Angaben gemaess § 5 TMG */}
         <InfoCard>
-          <CardHeading>Angaben gem\u00e4\u00df \u00a7 5 TMG</CardHeading>
+          <CardHeading>Angaben gemäß § 5 TMG</CardHeading>
           <div className="grid gap-4 sm:grid-cols-2">
             {/* Adresse */}
             <div className="rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] p-5">
@@ -87,7 +87,7 @@ export default async function ImpressumPage() {
             {/* Quick Facts */}
             <div className="rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] p-5">
               <dl className="space-y-3">
-                <InfoRow label="Gesch\u00e4ftsf\u00fchrer" value={ceo} />
+                <InfoRow label="Geschäftsführer" value={ceo} />
                 <InfoRow label="Inhaltl. verantwortlich" value={responsible} />
               </dl>
             </div>
@@ -101,12 +101,12 @@ export default async function ImpressumPage() {
             {data.phone ? (
               <InfoRow label="Telefon" value={data.phone} />
             ) : (
-              <PlaceholderRow label="Telefon" placeholder="Bitte im CMS erg\u00e4nzen" />
+              <PlaceholderRow label="Telefon" placeholder="Bitte im CMS ergänzen" />
             )}
             {data.email ? (
               <InfoRow label="E-Mail" value={data.email} />
             ) : (
-              <PlaceholderRow label="E-Mail" placeholder="Bitte im CMS erg\u00e4nzen" />
+              <PlaceholderRow label="E-Mail" placeholder="Bitte im CMS ergänzen" />
             )}
           </dl>
         </InfoCard>
@@ -118,12 +118,12 @@ export default async function ImpressumPage() {
             {data.registergericht ? (
               <InfoRow label="Handelsregister" value={data.registergericht} />
             ) : (
-              <PlaceholderRow label="Handelsregister" placeholder="Registergericht bitte im CMS erg\u00e4nzen" />
+              <PlaceholderRow label="Handelsregister" placeholder="Registergericht bitte im CMS ergänzen" />
             )}
             {data.hrb ? (
               <InfoRow label="Registernummer" value={data.hrb} />
             ) : (
-              <PlaceholderRow label="Registernummer" placeholder="HRB-Nummer bitte im CMS erg\u00e4nzen" />
+              <PlaceholderRow label="Registernummer" placeholder="HRB-Nummer bitte im CMS ergänzen" />
             )}
           </dl>
         </InfoCard>
@@ -137,7 +137,7 @@ export default async function ImpressumPage() {
             ) : (
               <PlaceholderRow
                 label="USt-IdNr."
-                placeholder="USt-IdNr. bitte im CMS erg\u00e4nzen (falls vorhanden)"
+                placeholder="USt-IdNr. bitte im CMS ergänzen (falls vorhanden)"
               />
             )}
           </dl>
@@ -146,14 +146,14 @@ export default async function ImpressumPage() {
         {/* § 34c GewO Erlaubnis */}
         <InfoCard>
           <CardHeading>
-            Aufsichtsbeh\u00f6rde / Erlaubnis
-            <span className="ml-2 text-xs font-normal text-white/40">(\u00a7 34c GewO)</span>
+            Aufsichtsbehörde / Erlaubnis
+            <span className="ml-2 text-xs font-normal text-white/40">(§ 34c GewO)</span>
           </CardHeading>
           {data.gewo34cText ? (
             <p className="text-sm leading-relaxed text-[color:var(--color-text-muted)]">{data.gewo34cText}</p>
           ) : (
             <div className="rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] p-4 text-sm italic text-[color:var(--color-text-muted)] opacity-50">
-              Angaben zur Erlaubnis nach \u00a7 34c GewO bitte im CMS erg\u00e4nzen.
+              Angaben zur Erlaubnis nach § 34c GewO bitte im CMS ergänzen.
             </div>
           )}
         </InfoCard>

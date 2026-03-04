@@ -19,6 +19,12 @@
     "seed": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed/seed.ts"
   },
   "dependencies": {
+    "@fullcalendar/core": "^6.1.20",
+    "@fullcalendar/daygrid": "^6.1.20",
+    "@fullcalendar/interaction": "^6.1.20",
+    "@fullcalendar/list": "^6.1.20",
+    "@fullcalendar/react": "^6.1.20",
+    "@fullcalendar/timegrid": "^6.1.20",
     "@payloadcms/db-postgres": "3.78.0",
     "@payloadcms/next": "3.78.0",
     "@payloadcms/richtext-lexical": "3.78.0",

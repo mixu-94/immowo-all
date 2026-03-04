@@ -1,7 +1,7 @@
 // src/app/api/contact/route.ts
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
-import { payloadCreate } from "@/lib/payloud";
+import { payloadCreate, payloadFind } from "@/lib/payloud";
 
 // Simple in-memory IP rate limiter (resets on server restart)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -148,9 +148,10 @@ export async function POST(req: Request) {
         }
 
         const hasMessage = message.length > 0;
-        if (!hasMessage && !callbackRequested) {
+        const hasTermin = Boolean(preferredDate);
+        if (!hasMessage && !callbackRequested && !hasTermin) {
             return NextResponse.json(
-                { ok: false, error: "Bitte eine Nachricht schreiben oder Rückruf auswählen." },
+                { ok: false, error: "Bitte eine Nachricht schreiben, R\u00FCckruf oder Terminwunsch ausw\u00E4hlen." },
                 { status: 400 }
             );
         }
@@ -159,6 +160,26 @@ export async function POST(req: Request) {
                 { ok: false, error: "Für einen Rückruf bitte eine Telefonnummer angeben." },
                 { status: 400 }
             );
+        }
+
+        // Auto-assign: look up listing's ansprechpartner as default assignedMakler
+        let assignedMaklerId: number | undefined = undefined;
+        let listingId: number | undefined = undefined;
+        if (listing) {
+            try {
+                const result = await payloadFind<{ id: number; ansprechpartner?: number | { id: number } }>(
+                    "immobilien",
+                    { where: { slug: { equals: listing } }, limit: 1, depth: 0 },
+                );
+                const firstDoc = result.docs[0];
+                listingId = firstDoc?.id;
+                const ap = firstDoc?.ansprechpartner;
+                if (ap != null) {
+                    assignedMaklerId = typeof ap === "object" ? Number(ap.id) : Number(ap);
+                }
+            } catch {
+                // proceed without assignment if lookup fails
+            }
         }
 
         // Meta
@@ -183,6 +204,8 @@ export async function POST(req: Request) {
             preferredTime: preferredTime || undefined,
             durationMinutes: durationMinutes || undefined,
             listingTitle: listingTitle || undefined,
+            listing: listingId || undefined,
+            assignedMakler: assignedMaklerId || undefined,
             status: "neu",
             receivedAt,
             ipAddress: ip || undefined,
@@ -310,9 +333,9 @@ export async function POST(req: Request) {
             port: Number(SMTP_PORT),
             secure: String(SMTP_SECURE).toLowerCase() === "true",
             auth: { user: SMTP_USER, pass: SMTP_PASS },
-            // tls: {
-            //     rejectUnauthorized: false, // ⚠️ NUR TEST/DEV
-            // },
+            tls: {
+                rejectUnauthorized: false, // ⚠️ IONOS SMTP: self-signed cert in chain
+            },
         });
 
         await transporter.sendMail({

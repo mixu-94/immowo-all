@@ -20,14 +20,14 @@ export default async function AGBPage() {
 
   return (
     <LegalPage
-      title="Allgemeine Gesch\u00e4ftsbedingungen (AGB)"
+      title="Allgemeine Geschäftsbedingungen (AGB)"
       lastUpdated="23.02.2026"
     >
       {data.content ? (
         <RichTextRenderer content={data.content} />
       ) : (
         <p className="text-[color:var(--color-text-muted)]">
-          Die AGB werden gerade aktualisiert. Bitte kommen Sie sp\u00e4ter zur\u00fcck.
+          Die AGB werden gerade aktualisiert. Bitte kommen Sie später zurück.
         </p>
       )}
     </LegalPage>

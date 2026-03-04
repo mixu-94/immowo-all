@@ -1,4 +1,99 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionAfterChangeHook, CollectionConfig } from 'payload'
+
+const windowToTime: Record<string, string> = {
+  '09-12': '09:00',
+  '12-15': '12:00',
+  '15-18': '15:00',
+  '18-20': '18:00',
+}
+
+// Creates a Termin whenever a new Anfrage arrives with a preferredDate.
+// makler is optional — left empty until a Makler "takes over" the Anfrage.
+const autoCreateTermin: CollectionAfterChangeHook = async ({ doc, operation, req }) => {
+  if (operation !== 'create') return doc
+  if (!doc.preferredDate) return doc
+
+  const maklerId =
+    doc.assignedMakler != null
+      ? typeof doc.assignedMakler === 'object'
+        ? doc.assignedMakler.id
+        : doc.assignedMakler
+      : undefined
+
+  const startTime: string =
+    (typeof doc.preferredTime === 'string' && doc.preferredTime.trim()) ||
+    windowToTime[doc.preferredTimeWindow as string] ||
+    '09:00'
+
+  try {
+    await req.payload.create({
+      collection: 'termine',
+      overrideAccess: true, // hook runs in system context — no authenticated user on public form submissions
+      data: {
+        date: doc.preferredDate,
+        startTime,
+        durationMinutes: doc.durationMinutes ?? 30,
+        ...(maklerId != null ? { makler: maklerId } : {}),
+        customerName: doc.name,
+        customerEmail: doc.email,
+        customerPhone: doc.phone ?? '',
+        customerMessage: doc.message ?? '',
+        sourceAnfrage: doc.id,
+        status: 'geplant',
+      },
+      req,
+    })
+  } catch (err) {
+    req.payload.logger.error({ err, msg: 'autoCreateTermin: failed to create Termin from Anfrage' })
+  }
+
+  return doc
+}
+
+// When a Makler is assigned (or changed) on an Anfrage, sync the change to the linked Termin.
+const syncTerminMakler: CollectionAfterChangeHook = async ({ doc, previousDoc, operation, req }) => {
+  if (operation !== 'update') return doc
+
+  const prevId =
+    previousDoc?.assignedMakler == null
+      ? null
+      : typeof previousDoc.assignedMakler === 'object'
+        ? previousDoc.assignedMakler?.id
+        : previousDoc.assignedMakler
+  const newId =
+    doc.assignedMakler == null
+      ? null
+      : typeof doc.assignedMakler === 'object'
+        ? doc.assignedMakler?.id
+        : doc.assignedMakler
+
+  // eslint-disable-next-line eqeqeq
+  if (prevId == newId) return doc // no change
+  if (newId == null) return doc   // unassigning — don't clear termin.makler
+
+  try {
+    const result = await req.payload.find({
+      collection: 'termine',
+      overrideAccess: true,
+      where: { sourceAnfrage: { equals: doc.id } },
+      limit: 1,
+      req,
+    })
+    const termin = result.docs[0]
+    if (!termin) return doc
+    await req.payload.update({
+      collection: 'termine',
+      overrideAccess: true,
+      id: termin.id,
+      data: { makler: newId },
+      req,
+    })
+  } catch (err) {
+    req.payload.logger.error({ err, msg: 'syncTerminMakler: failed to sync Termin makler' })
+  }
+
+  return doc
+}
 
 type UserLike = {
   id?: string | number
@@ -21,6 +116,9 @@ function getMaklerProfileId(user: UserLike): string | number | null {
 
 export const Anfragen: CollectionConfig = {
   slug: 'anfragen',
+  hooks: {
+    afterChange: [autoCreateTermin, syncTerminMakler],
+  },
   labels: {
     singular: 'Anfrage',
     plural: 'Anfragen',
@@ -36,17 +134,13 @@ export const Anfragen: CollectionConfig = {
     read: ({ req }) => {
       const user = getUser(req.user)
       if (!user) return false
-      if (user.role === 'admin' || user.role === 'editor') return true
-      if (user.role === 'makler') {
-        const mid = getMaklerProfileId(user)
-        if (!mid) return false
-        return { assignedMakler: { equals: mid } }
-      }
-      return false
+      // All authenticated roles see all Anfragen (team can cover for each other)
+      return user.role === 'admin' || user.role === 'editor' || user.role === 'makler'
     },
     update: ({ req }) => {
       const user = getUser(req.user)
-      return Boolean(user?.role === 'admin' || user?.role === 'editor')
+      // Makler can update (change status, take over, add notes) — not just admin/editor
+      return Boolean(user?.role === 'admin' || user?.role === 'editor' || user?.role === 'makler')
     },
     delete: ({ req }) => {
       return Boolean(getUser(req.user)?.role === 'admin')

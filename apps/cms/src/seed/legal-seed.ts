@@ -149,6 +149,8 @@ const COMPANY = "Immowo Ventures GmbH";
 const ADDRESS = "Dossenbergerstra\u00dfe 5, 89312 G\u00fcnzburg";
 const EMAIL_PLACEHOLDER = "[E-Mail-Adresse bitte im CMS erg\u00e4nzen]";
 const PHONE_PLACEHOLDER = "[Telefonnummer bitte im CMS erg\u00e4nzen]";
+const SUPERVISORY_AUTHORITY =
+  "Bayerisches Landesamt f\u00fcr Datenschutzaufsicht (BayLDA), Promenade 27, 91522 Ansbach, www.lda.bayern.de";
 
 const datenschutzContent = lexical([
   h2("1. Verantwortlicher"),
@@ -156,136 +158,195 @@ const datenschutzContent = lexical([
     `Verantwortlicher f\u00fcr die Datenverarbeitung auf dieser Website ist: ${COMPANY}, ${ADDRESS}. ` +
       `E-Mail: ${EMAIL_PLACEHOLDER}, Telefon: ${PHONE_PLACEHOLDER}.`,
   ),
-  h2("2. Erhebung und Verarbeitung personenbezogener Daten"),
-  h3("2.1 Beim Besuch der Website"),
+
+  h2("2. Verarbeitungszwecke und Rechtsgrundlagen (Art. 6 DSGVO)"),
+  para(
+    "Wir verarbeiten personenbezogene Daten nur, soweit eine Rechtsgrundlage nach Art. 6 DSGVO vorliegt: " +
+      "Einwilligung (lit. a), Vertragsanbahnung oder -erf\u00fcllung (lit. b), gesetzliche Verpflichtung (lit. c) " +
+      "oder berechtigtes Interesse (lit. f). Die konkreten Grundlagen sind den jeweiligen Abschnitten zu entnehmen.",
+  ),
+
+  h2("3. Website-Besuch (Server-Logs)"),
   para(
     "Beim Aufrufen unserer Website \u00fcbermittelt Ihr Browser automatisch Daten an unseren Server. " +
-      "Dies umfasst insbesondere: IP-Adresse (anonymisiert), Datum und Uhrzeit der Anfrage, " +
+      "Dies umfasst: IP-Adresse (wird umgehend anonymisiert), Datum und Uhrzeit der Anfrage, " +
       "aufgerufene URL, Referrer-URL, verwendeter Browser und Betriebssystem. " +
-      "Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der technischen Bereitstellung).",
+      "Server-Logs werden automatisch nach 14 Tagen gel\u00f6scht. " +
+      "Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der technischen Bereitstellung).",
   ),
-  h3("2.2 Kontaktformular"),
+
+  h2("4. Kontaktformular"),
   para(
     "Wenn Sie unser Kontaktformular nutzen, verarbeiten wir die von Ihnen eingegebenen Daten " +
       "(Name, E-Mail-Adresse, Telefon, Nachricht) ausschlie\u00dflich zur Bearbeitung Ihrer Anfrage. " +
-      "Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Vertragsanbahnung) bzw. Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse). " +
-      "Wir speichern Ihre Kontaktanfrage f\u00fcr maximal 6 Monate, sofern kein Gesch\u00e4ftsverh\u00e4ltnis zustande kommt.",
+      "Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Vertragsanbahnung). " +
+      "Wir speichern Kontaktanfragen f\u00fcr maximal 6 Monate, sofern kein Gesch\u00e4ftsverh\u00e4ltnis zustande kommt. " +
+      "Bei Vertragsschluss gelten die gesetzlichen Aufbewahrungsfristen (bis zu 10 Jahre).",
   ),
-  h3("2.3 Makler-Anfragen / Expos\u00e9s"),
+
+  h2("5. Immobilienanfragen und Maklerleistung"),
   para(
-    "Wenn Sie ein Expos\u00e9 oder Unterlagen anfordern, werden Ihre Kontaktdaten und die angefragte Immobilie " +
-      "zur Bearbeitung gespeichert. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO. " +
+    "Wenn Sie ein Expos\u00e9 anfordern oder eine Besichtigung vereinbaren, werden Ihre Kontaktdaten " +
+      "sowie die angefragte Immobilie zur Bearbeitung gespeichert. " +
+      "Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Vertragsanbahnung). " +
+      "Im Rahmen der Maklerleistung k\u00f6nnen Daten an den Eigent\u00fcmer oder Notar weitergegeben werden, " +
+      "soweit dies zur Vertragsdurchf\u00fchrung erforderlich ist (Art. 6 Abs. 1 lit. b DSGVO). " +
       "Sie k\u00f6nnen der Verarbeitung jederzeit widersprechen.",
   ),
-  h2("3. Weitergabe von Daten"),
+
+  h2("6. Matomo-Analytics (nur mit Einwilligung)"),
   para(
-    "Eine \u00dcbermittlung Ihrer pers\u00f6nlichen Daten an Dritte findet nur statt, wenn dies f\u00fcr die " +
-      "Vertragserf\u00fcllung erforderlich ist (z.B. Notar, Finanzierungsvermittler auf Ihren Wunsch), " +
+    "Sofern Sie in die Nutzungsanalyse eingewilligt haben, verwenden wir Matomo \u2014 eine " +
+      "datenschutzfreundliche, selbst-gehostete Open-Source-Analysesoftware. " +
+      "Matomo anonymisiert Ihre IP-Adresse (die letzten 2 Bytes werden gel\u00f6scht), setzt keine " +
+      "Drittanbieter-Cookies und \u00fcbertr\u00e4gt keine Daten an externe Server. " +
+      "Die erhobenen Daten verbleiben ausschlie\u00dflich auf unseren Servern in Deutschland. " +
+      "Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO. " +
+      "Sie k\u00f6nnen Ihre Einwilligung jederzeit \u00fcber den \u201eCookie-Einstellungen\u201c-Link im Footer widerrufen.",
+  ),
+
+  h2("7. Weitergabe an Dritte"),
+  para(
+    "Eine \u00dcbermittlung Ihrer pers\u00f6nlichen Daten an Dritte findet grunds\u00e4tzlich nicht statt, " +
+      "es sei denn, dies ist f\u00fcr die Vertragserf\u00fcllung erforderlich (z.B. Notar, Grundbuchamt, " +
+      "Finanzierungsvermittler auf Ihren ausdr\u00fccklichen Wunsch), " +
       "Sie ausdr\u00fccklich eingewilligt haben oder wir gesetzlich dazu verpflichtet sind.",
   ),
-  h2("4. Cookies und Tracking"),
+
+  h2("8. Speicherdauer"),
   para(
-    "Diese Website verwendet technisch notwendige Cookies, die f\u00fcr den Betrieb erforderlich sind " +
-      "(z.B. Cookie-Consent-Pr\u00e4ferenz). Zus\u00e4tzliche Cookies (Analyse, Tracking) werden nur nach Ihrer " +
-      "ausdr\u00fccklichen Einwilligung gesetzt. Sie k\u00f6nnen Ihre Cookie-Einstellungen jederzeit \u00fcber den " +
-      '"Cookie-Einstellungen"-Link im Footer \u00e4ndern.',
+    "Wir speichern pers\u00f6nliche Daten nur so lange, wie es f\u00fcr den jeweiligen Zweck erforderlich ist. " +
+      "Danach werden die Daten gel\u00f6scht oder anonymisiert, sofern keine gesetzlichen " +
+      "Aufbewahrungspflichten entgegenstehen. F\u00fcr Gesch\u00e4ftsdaten gelten handels- und steuerrechtliche " +
+      "Aufbewahrungsfristen von 6 bis 10 Jahren (HGB, AO).",
   ),
-  h2("5. Analyse / Matomo"),
-  para(
-    "Sofern Sie in die Analyse-Cookies eingewilligt haben, verwenden wir Matomo \u2014 eine datenschutzfreundliche, " +
-      "selbst-gehostete Analysesoftware. Matomo anonymisiert Ihre IP-Adresse und setzt keine Drittanbieter-Cookies. " +
-      "Die erhobenen Daten verbleiben auf unseren Servern in Deutschland. Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO.",
-  ),
-  h2("6. Ihre Rechte"),
-  para("Sie haben folgende Rechte bez\u00fcglich Ihrer pers\u00f6nlichen Daten:"),
+
+  h2("9. Ihre Rechte als betroffene Person (Art. 15\u201321 DSGVO)"),
+  para("Sie haben gegen\u00fcber uns folgende Rechte hinsichtlich Ihrer personenbezogenen Daten:"),
   ul([
-    "Auskunft \u00fcber die gespeicherten Daten (Art. 15 DSGVO)",
-    "Berichtigung unrichtiger Daten (Art. 16 DSGVO)",
-    "L\u00f6schung Ihrer Daten (Art. 17 DSGVO)",
+    "Auskunft \u00fcber die verarbeiteten Daten (Art. 15 DSGVO)",
+    "Berichtigung unrichtiger oder unvollst\u00e4ndiger Daten (Art. 16 DSGVO)",
+    "L\u00f6schung Ihrer Daten (\u201eRecht auf Vergessenwerden\u201c, Art. 17 DSGVO)",
     "Einschr\u00e4nkung der Verarbeitung (Art. 18 DSGVO)",
-    "Daten\u00fcbertragbarkeit (Art. 20 DSGVO)",
     "Widerspruch gegen die Verarbeitung (Art. 21 DSGVO)",
-    "Widerruf einer erteilten Einwilligung (Art. 7 Abs. 3 DSGVO)",
+    "Daten\u00fcbertragbarkeit in einem g\u00e4ngigen Format (Art. 20 DSGVO)",
+    "Widerruf einer erteilten Einwilligung mit Wirkung f\u00fcr die Zukunft (Art. 7 Abs. 3 DSGVO)",
   ]),
   para(
-    `Zur Aus\u00fcbung Ihrer Rechte wenden Sie sich an: ${EMAIL_PLACEHOLDER}. ` +
-      "Sie haben au\u00dferdem das Recht, sich bei einer Datenschutzaufsichtsbeh\u00f6rde zu beschweren.",
+    `Zur Aus\u00fcbung Ihrer Rechte wenden Sie sich bitte an: ${EMAIL_PLACEHOLDER}.`,
   ),
-  h2("7. Speicherdauer"),
+
+  h2("10. Beschwerderecht bei der Aufsichtsbeh\u00f6rde"),
   para(
-    "Wir speichern pers\u00f6nliche Daten nur so lange, wie es f\u00fcr den jeweiligen Zweck erforderlich ist " +
-      "oder gesetzliche Aufbewahrungspflichten bestehen (in der Regel 6\u201310 Jahre f\u00fcr Gesch\u00e4ftsdaten gem\u00e4\u00df HGB/AO).",
+    "Sie haben das Recht, sich bei einer Datenschutzaufsichtsbeh\u00f6rde \u00fcber die Verarbeitung " +
+      "Ihrer personenbezogenen Daten durch uns zu beschweren. " +
+      "Die zust\u00e4ndige Aufsichtsbeh\u00f6rde f\u00fcr Bayern ist: " +
+      SUPERVISORY_AUTHORITY + ".",
   ),
-  h2("8. Aktualit\u00e4t dieser Datenschutzerkl\u00e4rung"),
+
+  h2("11. Aktualit\u00e4t dieser Datenschutzerkl\u00e4rung"),
   para(
-    "Diese Datenschutzerkl\u00e4rung hat den Stand: 23.02.2026. " +
-      "Wir behalten uns vor, diese bei \u00c4nderungen der Rechtslage oder unserer Leistungen anzupassen.",
+    "Diese Datenschutzerkl\u00e4rung hat den Stand: 04.03.2026. " +
+      "Wir behalten uns vor, diese bei \u00c4nderungen der Rechtslage oder unserer Leistungen anzupassen. " +
+      "Die jeweils aktuelle Version ist auf dieser Seite abrufbar.",
   ),
 ]);
 
 const agbContent = lexical([
   para(
-    `Diese Allgemeinen Gesch\u00e4ftsbedingungen gelten f\u00fcr alle Leistungen der ${COMPANY} (nachfolgend \u201eMakler\u201c) ` +
-      "gegen\u00fcber Interessenten, K\u00e4ufern und Verk\u00e4ufern von Immobilien.",
+    `Diese Allgemeinen Gesch\u00e4ftsbedingungen (AGB) gelten f\u00fcr alle Leistungen der ${COMPANY} ` +
+      "(nachfolgend \u201eMakler\u201c) gegen\u00fcber Interessenten, K\u00e4ufern und Verk\u00e4ufern von Immobilien " +
+      "in der Bundesrepublik Deutschland.",
   ),
+
   h2("\u00a7 1 Geltungsbereich"),
   para(
     "Diese AGB gelten f\u00fcr alle Maklervertr\u00e4ge, die mit der Immowo Ventures GmbH geschlossen werden. " +
-      "Abweichende Bedingungen des Kunden gelten nur, wenn der Makler diesen ausdr\u00fccklich schriftlich zugestimmt hat.",
+      "Abweichende Bedingungen des Kunden gelten nur, wenn der Makler diesen ausdr\u00fccklich in Textform zugestimmt hat. " +
+      "Ma\u00dfgeblich ist die zum Zeitpunkt des Vertragsschlusses g\u00fcltige Fassung.",
   ),
-  h2("\u00a7 2 Maklert\u00e4tigkeit"),
+
+  h2("\u00a7 2 Maklerleistung (Nachweis und Vermittlung)"),
   para(
-    "Der Makler vermittelt Kaufvertr\u00e4ge \u00fcber Grundst\u00fccke, Wohn- und Gewerbeimmobilien sowie Bautr\u00e4gerprojekte. " +
+    "Der Makler vermittelt Kaufvertr\u00e4ge \u00fcber Grundst\u00fccke, Wohn- und Gewerbeimmobilien sowie " +
+      "Bautr\u00e4gerprojekte (Kauf ab Plan, Neubau, Bestand). " +
       "Die T\u00e4tigkeit umfasst insbesondere: Nachweis von Kaufgelegenheiten, \u00dcbermittlung von Expos\u00e9s, " +
-      "Koordination von Besichtigungen sowie Unterst\u00fctzung bei der Vertragsanbahnung.",
+      "Koordination von Besichtigungen sowie Unterst\u00fctzung bei der Vertragsanbahnung bis zur notariellen Beurkundung.",
   ),
-  h2("\u00a7 3 Provision / Maklerprovision"),
+
+  h2("\u00a7 3 Zustandekommen des Maklervertrags"),
+  para(
+    "Der Maklervertrag kommt zustande, wenn der Kunde die Maklerleistung in Textform beauftragt oder " +
+      "ein Expos\u00e9 ausdr\u00fccklich anfordert und dabei Kenntnis von der Provisionspflicht hat.",
+  ),
+  boldPara(
+    "Textform (\u00a7 656a BGB): ",
+    "Alle Vereinbarungen \u00fcber die Maklerprovision bed\u00fcrfen der Textform gem\u00e4\u00df \u00a7 656a BGB. " +
+      "Die ausdr\u00fcckliche Anforderung eines Expos\u00e9s oder die Kontaktaufnahme \u00fcber das Formular gilt als " +
+      "Beauftragung in Textform, sofern die Provisionspflicht vorher bekannt gemacht wurde.",
+  ),
+
+  h2("\u00a7 4 Maklerprovision"),
   para(
     "Bei erfolgreicher Vermittlung (Abschluss eines notariellen Kaufvertrags) ist eine Provision f\u00e4llig:",
   ),
   ul([
-    "K\u00e4uferprovision: 3,57 % des Kaufpreises inkl. gesetzl. MwSt. (3,00 % zzgl. 19 % MwSt.)",
-    "F\u00e4lligkeitszeitpunkt: Mit Abschluss des notariellen Kaufvertrags",
-    "Zahlungspflicht: Der K\u00e4ufer ist zur Zahlung verpflichtet, sofern ein Kaufvertrag zustande kommt",
+    "K\u00e4uferprovision: 3,57 % des beurkundeten Kaufpreises inkl. gesetzl. MwSt. (3,00 % zzgl. 19 % MwSt.)",
+    "F\u00e4lligkeit: Mit notarieller Beurkundung des Kaufvertrags und Nachweis der Kausalit\u00e4t",
+    "Zahlungspflicht: Der K\u00e4ufer ist zur Zahlung verpflichtet, sofern der Maklernachweis urs\u00e4chlich war",
   ]),
   para(
     "Die Provision ist verdient, wenn der Maklernachweis urs\u00e4chlich f\u00fcr den Vertragsabschluss war " +
-      "(\u00a7 652 BGB). Eine Doppelt\u00e4tigkeit des Maklers (Provision von Verk\u00e4ufer und K\u00e4ufer) wird dem Kunden " +
-      "offengelegt.",
+      "(\u00a7 652 BGB). Im Fall der Doppelt\u00e4tigkeit (Provision von Verk\u00e4ufer und K\u00e4ufer) " +
+      "wird der Kunde vorab ausdr\u00fccklich informiert (\u00a7 654 BGB).",
   ),
-  boldPara(
-    "Textform (§ 656a BGB): ",
-    "Alle Vereinbarungen über die Maklerprovision bedürfen der Textform gemäß § 656a BGB. " +
-      "Die Zustimmung des Kunden zur Provision erfolgt durch die ausdrückliche Anforderung eines " +
-      "Exposés oder die Beauftragung des Maklers in Textform (z.B. per E-Mail oder Kontaktformular).",
-  ),
-  h2("\u00a7 4 Exposé-Vertraulichkeit"),
+
+  h2("\u00a7 5 Expos\u00e9-Vertraulichkeit"),
   para(
-    "Expos\u00e9s, Grundrisse und \u00dcbersichten werden ausschlie\u00dflich zum Zweck der Kaufpr\u00fcfung \u00fcbermittelt. " +
-      "Eine Weitergabe an Dritte ohne schriftliche Zustimmung des Maklers ist untersagt.",
+    "Expos\u00e9s, Grundrisse, Preisangaben und \u00dcbersichten werden ausschlie\u00dflich zum Zweck der " +
+      "pers\u00f6nlichen Kaufpr\u00fcfung \u00fcbermittelt. Eine Weitergabe an Dritte ohne schriftliche Zustimmung " +
+      "des Maklers ist untersagt und kann Schadensersatzanspr\u00fcche begr\u00fcnden.",
   ),
-  h2("\u00a7 5 Pflichten des Kunden"),
+
+  h2("\u00a7 6 Pflichten des Kunden"),
   para("Der Kunde ist verpflichtet:"),
   ul([
     "Alle entscheidungsrelevanten Informationen wahrheitsgem\u00e4\u00df anzugeben",
     "Den Makler \u00fcber den Abschluss eines Kaufvertrags unverz\u00fcglich zu informieren",
     "Auf direkte Kontaktaufnahme mit dem Verk\u00e4ufer nur \u00fcber den Makler hinzuwirken",
+    "Keine weiteren Makler f\u00fcr dasselbe Objekt ohne vorherige Absprache einzuschalten",
   ]),
-  h2("\u00a7 6 Haftung"),
+
+  h2("\u00a7 7 Widerrufsrecht bei Fernabsatz"),
   para(
-    "Der Makler haftet nicht f\u00fcr die Richtigkeit der vom Verk\u00e4ufer \u00fcbermittelten Angaben (Fl\u00e4chen, " +
-      "Baujahr, Zustand). Der Kunde ist verpflichtet, alle f\u00fcr ihn wesentlichen Informationen selbst " +
-      "zu \u00fcberpr\u00fcfen. Die Haftung des Maklers ist auf Vorsatz und grobe Fahrl\u00e4ssigkeit beschr\u00e4nkt.",
+    "Wird der Maklervertrag als Fernabsatzvertrag geschlossen (z.B. ausschlie\u00dflich per E-Mail oder " +
+      "Online-Formular ohne pers\u00f6nlichen Kontakt), steht dem Verbraucher ein Widerrufsrecht von " +
+      "14 Tagen ab Vertragsschluss zu (\u00a7 312g BGB). " +
+      "Das Widerrufsrecht erl\u00f6scht vorzeitig, wenn der Makler die Dienstleistung vollst\u00e4ndig erbracht hat " +
+      "und der Verbraucher ausdr\u00fccklich zugestimmt hat, dass mit der Ausf\u00fchrung vor Ablauf der Widerrufsfrist " +
+      "begonnen wird. N\u00e4here Informationen entnehmen Sie der Widerrufsbelehrung.",
   ),
-  h2("\u00a7 7 Datenschutz"),
+
+  h2("\u00a7 8 Haftung"),
+  para(
+    "Der Makler haftet nicht f\u00fcr die Richtigkeit der vom Verk\u00e4ufer \u00fcbermittelten Angaben " +
+      "(Fl\u00e4chen, Baujahr, Zustand, Bebauungsm\u00f6glichkeiten). Der Kunde ist verpflichtet, " +
+      "alle f\u00fcr ihn wesentlichen Informationen selbst oder durch Sachverst\u00e4ndige zu \u00fcberpr\u00fcfen. " +
+      "Die Haftung des Maklers ist, soweit gesetzlich zul\u00e4ssig, auf Vorsatz und grobe Fahrl\u00e4ssigkeit beschr\u00e4nkt.",
+  ),
+
+  h2("\u00a7 9 Datenschutz"),
   para(
     "Im Rahmen der Maklerleistung werden personenbezogene Daten gem\u00e4\u00df der DSGVO verarbeitet. " +
-      "Details zur Datenverarbeitung finden Sie in unserer Datenschutzerkl\u00e4rung.",
+      "Details zur Art, Umfang und Zweck der Verarbeitung entnehmen Sie bitte unserer Datenschutzerkl\u00e4rung " +
+      "auf unserer Website.",
   ),
-  h2("\u00a7 8 Schlussbestimmungen"),
+
+  h2("\u00a7 10 Schlussbestimmungen"),
   para(
-    "Es gilt das Recht der Bundesrepublik Deutschland. Erf\u00fcllungsort und Gerichtsstand ist, soweit " +
-      "gesetzlich zul\u00e4ssig, G\u00fcnzburg. Sollten einzelne Bestimmungen dieser AGB unwirksam sein, " +
+    "Es gilt das Recht der Bundesrepublik Deutschland. Erf\u00fcllungsort und Gerichtsstand ist, " +
+      "soweit gesetzlich zul\u00e4ssig, G\u00fcnzburg. " +
+      "Sollten einzelne Bestimmungen dieser AGB unwirksam oder undurchf\u00fchrbar sein, " +
       "bleibt die Wirksamkeit der \u00fcbrigen Bestimmungen unber\u00fchrt.",
   ),
 ]);
@@ -306,85 +367,126 @@ const widerrufContent = lexical([
       "Sie k\u00f6nnen daf\u00fcr das beigef\u00fcgte Muster-Widerrufsformular verwenden, das jedoch nicht vorgeschrieben ist.",
   ),
   para(
-    "Zur Wahrung der Widerrufsfrist reicht es aus, dass Sie die Mitteilung \u00fcber die Aus\u00fcbung des Widerrufsrechts " +
-      "vor Ablauf der Widerrufsfrist absenden.",
+    "Zur Wahrung der Widerrufsfrist reicht es aus, dass Sie die Mitteilung \u00fcber die Aus\u00fcbung des " +
+      "Widerrufsrechts vor Ablauf der Widerrufsfrist absenden.",
   ),
+
   h2("Folgen des Widerrufs"),
   para(
     "Wenn Sie diesen Vertrag widerrufen, haben wir Ihnen alle Zahlungen, die wir von Ihnen erhalten haben, " +
-      "unverz\u00fcglich und sp\u00e4testens binnen vierzehn Tagen ab dem Tag zur\u00fcckzuzahlen, an dem die Mitteilung " +
-      "\u00fcber Ihren Widerruf dieses Vertrags bei uns eingegangen ist. F\u00fcr diese R\u00fcckzahlung verwenden wir dasselbe " +
-      "Zahlungsmittel, das Sie bei der urspr\u00fcnglichen Transaktion eingesetzt haben.",
+      "unverz\u00fcglich und sp\u00e4testens binnen vierzehn Tagen ab dem Tag zur\u00fcckzuzahlen, " +
+      "an dem die Mitteilung \u00fcber Ihren Widerruf bei uns eingegangen ist. " +
+      "F\u00fcr diese R\u00fcckzahlung verwenden wir dasselbe Zahlungsmittel, das Sie bei der urspr\u00fcnglichen " +
+      "Transaktion eingesetzt haben, sofern nicht ausdr\u00fccklich etwas anderes vereinbart wurde.",
   ),
+  para(
+    "Haben Sie verlangt, dass die Erbringung der Dienstleistungen w\u00e4hrend der Widerrufsfrist beginnen soll, " +
+      "so haben Sie uns einen angemessenen Betrag zu zahlen, der dem Anteil der bis zu dem Zeitpunkt, " +
+      "zu dem Sie uns von der Aus\u00fcbung des Widerrufsrechts unterrichten, bereits erbrachten " +
+      "Dienstleistungen im Vergleich zum Gesamtumfang der im Vertrag vorgesehenen Dienstleistungen entspricht.",
+  ),
+
   h2("Vorzeitiges Erl\u00f6schen des Widerrufsrechts"),
   para(
-    "Das Widerrufsrecht erl\u00f6scht bei einem Vertrag zur Erbringung von Dienstleistungen, wenn der Unternehmer die " +
-      "Dienstleistung vollst\u00e4ndig erbracht hat und mit der Ausf\u00fchrung der Dienstleistung erst begonnen hat, " +
-      "nachdem der Verbraucher dazu seine ausdr\u00fcckliche Zustimmung gegeben hat und gleichzeitig seine Kenntnis " +
-      "best\u00e4tigt hat, dass er sein Widerrufsrecht verliert, sobald der Unternehmer den Vertrag vollst\u00e4ndig erf\u00fcllt hat.",
+    "Das Widerrufsrecht erl\u00f6scht vorzeitig, wenn der Makler die Dienstleistung (z.B. erfolgreiche " +
+      "Vermittlung und Beurkundung des Kaufvertrags) vollst\u00e4ndig erbracht hat und mit der Ausf\u00fchrung erst " +
+      "begonnen hat, nachdem der Verbraucher dazu seine ausdr\u00fcckliche Zustimmung gegeben hat und gleichzeitig " +
+      "best\u00e4tigt hat, dass er sein Widerrufsrecht mit vollst\u00e4ndiger Vertragserf\u00fcllung durch den Unternehmer verliert.",
   ),
+
   hr(),
+
   h2("Muster-Widerrufsformular"),
   para(
     "(Wenn Sie den Vertrag widerrufen wollen, dann f\u00fcllen Sie bitte dieses Formular aus und senden Sie es zur\u00fcck.)",
   ),
+  para(`An: ${COMPANY}, ${ADDRESS}`),
+  para(`E-Mail: ${EMAIL_PLACEHOLDER}`),
   para(
-    `An: ${COMPANY}, ${ADDRESS}, E-Mail: ${EMAIL_PLACEHOLDER}`,
-  ),
-  para(
-    "Hiermit widerrufe(n) ich/wir den von mir/uns abgeschlossenen Vertrag \u00fcber die Erbringung der folgenden " +
-      "Dienstleistung:",
+    "Hiermit widerrufe(n) ich/wir den von mir/uns abgeschlossenen Vertrag \u00fcber die Erbringung der " +
+      "folgenden Dienstleistung (Maklerleistung):",
   ),
   ul([
-    "Bestellt am: __________________",
+    "Beauftragt am / Expos\u00e9 angefordert am: __________________",
     "Name des/der Verbraucher(s): __________________",
     "Anschrift des/der Verbraucher(s): __________________",
     "Datum: __________________",
+    "Unterschrift des/der Verbraucher(s) (nur bei Mitteilung auf Papier): __________________",
   ]),
 ]);
 
 const cookiesContent = lexical([
   h2("1. Was sind Cookies?"),
   para(
-    "Cookies sind kleine Textdateien, die auf Ihrem Endger\u00e4t gespeichert werden, wenn Sie eine Website besuchen. " +
-      "Sie erm\u00f6glichen es Websites, bestimmte Informationen zu speichern und bei einem erneuten Besuch abzurufen.",
+    "Cookies sind kleine Textdateien, die auf Ihrem Endger\u00e4t (Computer, Smartphone, Tablet) " +
+      "gespeichert werden, wenn Sie eine Website besuchen. " +
+      "Sie erm\u00f6glichen es der Website, bestimmte Informationen zu speichern und bei einem " +
+      "erneuten Besuch abzurufen, um die Nutzung zu verbessern.",
   ),
-  h2("2. Welche Cookies verwenden wir?"),
-  h3("2.1 Technisch notwendige Cookies"),
-  para("Diese Cookies sind f\u00fcr den Betrieb der Website unbedingt erforderlich. Ohne sie funktionieren " +
-    "grundlegende Funktionen nicht. Sie werden ohne Ihre Einwilligung gesetzt (berechtigtes Interesse, " +
-    "Art. 6 Abs. 1 lit. f DSGVO):"),
+
+  h2("2. Technisch notwendige Cookies"),
+  para(
+    "Diese Cookies sind f\u00fcr den Betrieb der Website unbedingt erforderlich. " +
+      "Ohne sie funktionieren grundlegende Funktionen (z.B. Navigation, Sicherheit) nicht korrekt. " +
+      "Sie werden auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse) " +
+      "ohne Ihre Einwilligung gesetzt:",
+  ),
   ul([
-    "cookie_consent \u2014 Speichert Ihre Cookie-Pr\u00e4ferenzen (Laufzeit: 12 Monate)",
+    "cookie_consent \u2014 Speichert Ihre Cookie-Pr\u00e4ferenzen und Einwilligungen (Laufzeit: 12 Monate)",
   ]),
-  h3("2.2 Analyse-Cookies (nur mit Einwilligung)"),
+
+  h2("3. Analyse-Cookies (nur mit Ihrer Einwilligung)"),
   para(
     "Wenn Sie der Nutzungsanalyse zustimmen, setzen wir Matomo \u2014 eine datenschutzfreundliche, " +
-      "selbst-gehostete Analysesoftware. Matomo anonymisiert Ihre IP-Adresse und verwendet keine " +
-      "Drittanbieter-Server. Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO.",
+      "selbst-gehostete Open-Source-Analysesoftware. " +
+      "Matomo erf\u00fcllt die Anforderungen der DSGVO:",
   ),
   ul([
-    "_pk_id \u2014 Enth\u00e4lt anonymisierte Besucher-ID (Laufzeit: 13 Monate)",
+    "IP-Anonymisierung: Die letzten 2 Bytes Ihrer IP-Adresse werden gel\u00f6scht",
+    "Kein Drittanbieter: Alle Daten verbleiben auf unseren Servern in Deutschland",
+    "Kein Tracking ohne Einwilligung: Matomo wird nur aktiviert, wenn Sie zustimmen",
+    "Do Not Track: Die Einstellung Ihres Browsers wird respektiert",
+    "_pk_id \u2014 Anonymisierte Besucher-ID (Laufzeit: 13 Monate)",
     "_pk_ses \u2014 Sitzungs-Cookie f\u00fcr Matomo (Laufzeit: 30 Minuten)",
   ]),
-  h2("3. Externe Inhalte"),
   para(
-    "Wenn Sie externen Inhalten zustimmen, k\u00f6nnen YouTube-Videos auf den Immobilienseiten abgespielt werden. " +
-      "Dabei werden von Google/YouTube Cookies und Daten \u00fcbermittelt. Ohne Ihre Einwilligung bleiben diese " +
-      "Inhalte gesperrt.",
+    "Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO. Sie k\u00f6nnen Ihre Einwilligung jederzeit " +
+      "widerrufen (siehe Abschnitt 4).",
   ),
-  h2("4. Ihre Einstellungen \u00e4ndern"),
+
+  h2("4. Externe Inhalte (YouTube-Videos)"),
   para(
-    "Sie k\u00f6nnen Ihre Cookie-Einstellungen jederzeit \u00fcber den \u201eCookie-Einstellungen\u201c-Link im Footer \u00e4ndern " +
-      "oder alle Cookies in Ihrem Browser l\u00f6schen. Bitte beachten Sie, dass das L\u00f6schen von Cookies die " +
-      "Funktionsf\u00e4higkeit der Website beeintr\u00e4chtigen kann.",
+    "Auf einigen Seiten k\u00f6nnen YouTube-Videos eingebettet sein. " +
+      "Diese werden erst geladen und abgespielt, wenn Sie in externe Inhalte einwilligen. " +
+      "Ohne Ihre Einwilligung werden keine Daten an Google/YouTube \u00fcbertragen. " +
+      "Bei Einwilligung gelten die Datenschutzbestimmungen von Google LLC.",
   ),
-  h2("5. Browser-Einstellungen"),
+
+  h2("5. Ihre Einstellungen \u00e4ndern oder widerrufen"),
   para(
-    "Die meisten Browser erm\u00f6glichen es Ihnen, Cookies zu deaktivieren oder zu l\u00f6schen. Bitte beachten Sie, " +
-      "dass bei deaktivierten Cookies einige Funktionen der Website m\u00f6glicherweise nicht verf\u00fcgbar sind.",
+    "Sie k\u00f6nnen Ihre Cookie-Einstellungen jederzeit \u00fcber den \u201eCookie-Einstellungen\u201c-Link " +
+      "im Fu\u00dfbereich der Website \u00e4ndern oder Ihre Einwilligung widerrufen. " +
+      "Zus\u00e4tzlich k\u00f6nnen Sie in Ihrem Browser alle Cookies l\u00f6schen. " +
+      "Bitte beachten Sie, dass das L\u00f6schen von Cookies dazu f\u00fchren kann, " +
+      "dass einige Funktionen der Website nicht mehr korrekt funktionieren.",
   ),
-  h2("6. Kontakt"),
+
+  h2("6. Cookies in Ihrem Browser verwalten"),
+  para(
+    "Die g\u00e4ngigen Browser bieten Einstellungen, mit denen Sie Cookies deaktivieren, " +
+      "einschr\u00e4nken oder l\u00f6schen k\u00f6nnen. Eine Anleitung finden Sie in der Hilfe Ihres Browsers. " +
+      "Bitte beachten Sie, dass bei deaktivierten Cookies einige Funktionen " +
+      "der Website m\u00f6glicherweise nicht verf\u00fcgbar sind.",
+  ),
+
+  h2("7. \u00c4nderungen dieser Cookie-Richtlinie"),
+  para(
+    "Wir behalten uns vor, diese Cookie-Richtlinie anzupassen, wenn sich die Rechtslage oder " +
+      "unsere technischen Gegebenheiten \u00e4ndern. Die aktuelle Fassung ist stets auf dieser Seite abrufbar. " +
+      "Stand: 04.03.2026.",
+  ),
+
+  h2("8. Kontakt"),
   para(
     `Bei Fragen zu unserer Cookie-Nutzung wenden Sie sich an: ${EMAIL_PLACEHOLDER}`,
   ),

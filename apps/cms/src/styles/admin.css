@@ -73,9 +73,33 @@
 /* ── Aktive Nav-Links Gold hervorheben ───────────────────────────────────────── */
 .nav__link--active,
 .nav__link--active:hover {
-  background-color: rgba(201, 169, 110, 0.12) !important;
+  background-color: rgba(201, 169, 110, 0.15) !important;
   color: #C9A96E !important;
   border-left: 2px solid #C9A96E !important;
+}
+
+/* ── Nav Group Toggle Labels ─────────────────────────────────────────────────── */
+.nav-group__toggle {
+  color: rgba(201, 169, 110, 0.65) !important;
+  font-size: 10px !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+}
+
+/* ── Nav Links — Hover Transition ────────────────────────────────────────────── */
+.nav__link {
+  transition: background 150ms !important;
+}
+
+.nav__link:hover {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+/* ── Trennlinie zwischen Nav-Gruppen ─────────────────────────────────────────── */
+.nav-group + .nav-group {
+  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+  margin-top: 4px !important;
+  padding-top: 4px !important;
 }
 
 /* ── Buttons — Primary als Gold ─────────────────────────────────────────────── */

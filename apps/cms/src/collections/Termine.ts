@@ -41,24 +41,14 @@ export const Termine: CollectionConfig = {
     read: ({ req }) => {
       const user = getUser(req.user)
       if (!user) return false
-      if (user.role === 'admin' || user.role === 'editor') return true
-      if (user.role === 'makler') {
-        const mid = getMaklerProfileId(user)
-        if (!mid) return false
-        return { makler: { equals: mid } }
-      }
-      return false
+      // All authenticated roles see all Termine — Makler can filter in the UI
+      return user.role === 'admin' || user.role === 'editor' || user.role === 'makler'
     },
     update: ({ req }) => {
       const user = getUser(req.user)
       if (!user) return false
-      if (user.role === 'admin' || user.role === 'editor') return true
-      if (user.role === 'makler') {
-        const mid = getMaklerProfileId(user)
-        if (!mid) return false
-        return { makler: { equals: mid } }
-      }
-      return false
+      // All roles can update any Termin (Makler may take over unassigned ones)
+      return user.role === 'admin' || user.role === 'editor' || user.role === 'makler'
     },
     delete: ({ req }) => {
       const user = getUser(req.user)
@@ -124,9 +114,8 @@ export const Termine: CollectionConfig = {
               type: 'relationship',
               label: 'Makler',
               relationTo: 'makler',
-              required: true,
               admin: {
-                description: 'Zust\u00e4ndiger Makler f\u00fcr diesen Termin',
+                description: 'Zust\u00e4ndiger Makler (wird automatisch gesetzt, wenn Anfrage \u00fcbernommen wird)',
               },
             },
             {

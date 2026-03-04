@@ -47,6 +47,7 @@ export default buildConfig({
         Icon: '@/components/payload-admin/Icon',
       },
       beforeDashboard: ['@/components/payload-admin/BeforeDashboard'],
+      beforeLogin: ['@/components/payload-admin/BeforeLogin'],
     },
   },
   collections: [Users, Media, Immobilien, Referenzen, Makler, Anfragen, Termine],
